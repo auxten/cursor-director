@@ -3,158 +3,176 @@
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1600" y2="900" gradientUnits="userSpaceOnUse">
       <stop offset="0" stop-color="#080B0F"/>
-      <stop offset="0.55" stop-color="#0B1014"/>
+      <stop offset="0.52" stop-color="#0B1114"/>
       <stop offset="1" stop-color="#07100C"/>
     </linearGradient>
-    <radialGradient id="limeHalo" cx="0" cy="0" r="1" gradientTransform="translate(800 398) rotate(90) scale(470 760)" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#B7FF4A" stop-opacity="0.14"/>
-      <stop offset="0.5" stop-color="#74F0A7" stop-opacity="0.04"/>
-      <stop offset="1" stop-color="#74F0A7" stop-opacity="0"/>
+    <radialGradient id="halo" cx="0" cy="0" r="1" gradientTransform="translate(800 445) rotate(90) scale(500 780)" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#A8FF55" stop-opacity="0.12"/>
+      <stop offset="0.56" stop-color="#76EFAE" stop-opacity="0.035"/>
+      <stop offset="1" stop-color="#76EFAE" stop-opacity="0"/>
     </radialGradient>
-    <linearGradient id="cursorStroke" x1="470" y1="220" x2="1130" y2="505" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#D7FF63" stop-opacity="0.95"/>
-      <stop offset="0.52" stop-color="#79F2B2" stop-opacity="0.62"/>
-      <stop offset="1" stop-color="#6CE6FF" stop-opacity="0.24"/>
+    <linearGradient id="cursorStroke" x1="480" y1="204" x2="1120" y2="400" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#CBFF62"/>
+      <stop offset="0.55" stop-color="#78F1AF" stop-opacity="0.72"/>
+      <stop offset="1" stop-color="#6DCCFF" stop-opacity="0.35"/>
     </linearGradient>
-    <linearGradient id="connector" x1="800" y1="495" x2="800" y2="635" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#C9FF64" stop-opacity="0.96"/>
-      <stop offset="1" stop-color="#7CF1B2" stop-opacity="0.35"/>
+    <linearGradient id="tmuxStroke" x1="150" y1="454" x2="1450" y2="663" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#44D064" stop-opacity="0.72"/>
+      <stop offset="0.5" stop-color="#7BF0B1" stop-opacity="0.36"/>
+      <stop offset="1" stop-color="#6DCCFF" stop-opacity="0.30"/>
     </linearGradient>
     <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#DDF7E9" stroke-opacity="0.035" stroke-width="1"/>
+      <path d="M40 0H0V40" fill="none" stroke="#DDF7E9" stroke-opacity="0.034"/>
     </pattern>
-    <filter id="softGlow" x="-60%" y="-60%" width="220%" height="220%">
-      <feGaussianBlur stdDeviation="18"/>
-    </filter>
     <filter id="shadow" x="-20%" y="-30%" width="140%" height="170%">
-      <feDropShadow dx="0" dy="18" stdDeviation="24" flood-color="#000000" flood-opacity="0.42"/>
+      <feDropShadow dx="0" dy="16" stdDeviation="22" flood-color="#000" flood-opacity="0.40"/>
     </filter>
-    <filter id="cardShadow" x="-15%" y="-25%" width="130%" height="160%">
-      <feDropShadow dx="0" dy="12" stdDeviation="18" flood-color="#000000" flood-opacity="0.35"/>
+    <filter id="smallShadow" x="-20%" y="-30%" width="140%" height="170%">
+      <feDropShadow dx="0" dy="9" stdDeviation="13" flood-color="#000" flood-opacity="0.32"/>
     </filter>
-    <marker id="arrow" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
-      <path d="M 1 1 L 11 6 L 1 11 Z" fill="#8EF1AF"/>
+    <marker id="arrowGreen" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M1 1L11 6L1 11Z" fill="#80F1B1"/>
     </marker>
-    <clipPath id="frameClip">
-      <rect width="1600" height="900" rx="0"/>
-    </clipPath>
+    <marker id="arrowSoft" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M1 1L11 6L1 11Z" fill="#78958A"/>
+    </marker>
+
+    <symbol id="cursorMark" viewBox="0 0 466.73 532.09">
+      <path fill="currentColor" d="M457.43,125.94L244.42,2.96c-6.84-3.95-15.28-3.95-22.12,0L9.3,125.94c-5.75,3.32-9.3,9.46-9.3,16.11v247.99c0,6.65,3.55,12.79,9.3,16.11l213.01,122.98c6.84,3.95,15.28,3.95,22.12,0l213.01-122.98c5.75-3.32,9.3-9.46,9.3-16.11v-247.99c0-6.65-3.55-12.79-9.3-16.11h-.01ZM444.05,151.99l-205.63,356.16c-1.39,2.4-5.06,1.42-5.06-1.36v-233.21c0-4.66-2.49-8.97-6.53-11.31L24.87,145.67c-2.4-1.39-1.42-5.06,1.36-5.06h411.26c5.84,0,9.49,6.33,6.57,11.39h-.01Z"/>
+    </symbol>
+    <symbol id="claudeMark" viewBox="0 0 24 24">
+      <path fill="currentColor" d="m4.7144 15.9555 4.7174-2.6471.079-.2307-.079-.1275h-.2307l-.7893-.0486-2.6956-.0729-2.3375-.0971-2.2646-.1214-.5707-.1215-.5343-.7042.0546-.3522.4797-.3218.686.0608 1.5179.1032 2.2767.1578 1.6514.0972 2.4468.255h.3886l.0546-.1579-.1336-.0971-.1032-.0972L6.973 9.8356l-2.55-1.6879-1.3356-.9714-.7225-.4918-.3643-.4614-.1578-1.0078.6557-.7225.8803.0607.2246.0607.8925.686 1.9064 1.4754 2.4893 1.8336.3643.3035.1457-.1032.0182-.0728-.164-.2733-1.3539-2.4467-1.445-2.4893-.6435-1.032-.17-.6194c-.0607-.255-.1032-.4674-.1032-.7285L6.287.1335 6.6997 0l.9957.1336.419.3642.6192 1.4147 1.0018 2.2282 1.5543 3.0296.4553.8985.2429.8318.091.255h.1579v-.1457l.1275-1.706.2368-2.0947.2307-2.6957.0789-.7589.3764-.9107.7468-.4918.5828.2793.4797.686-.0668.4433-.2853 1.8517-.5586 2.9021-.3643 1.9429h.2125l.2429-.2429.9835-1.3053 1.6514-2.0643.7286-.8196.85-.9046.5464-.4311h1.0321l.759 1.1293-.34 1.1657-1.0625 1.3478-.8804 1.1414-1.2628 1.7-.7893 1.36.0729.1093.1882-.0183 2.8535-.607 1.5421-.2794 1.8396-.3157.8318.3886.091.3946-.3278.8075-1.967.4857-2.3072.4614-3.4364.8136-.0425.0304.0486.0607 1.5482.1457.6618.0364h1.621l3.0175.2247.7892.522.4736.6376-.079.4857-1.2142.6193-1.6393-.3886-3.825-.9107-1.3113-.3279h-.1822v.1093l1.0929 1.0686 2.0035 1.8092 2.5075 2.3314.1275.5768-.3218.4554-.34-.0486-2.2039-1.6575-.85-.7468-1.9246-1.621h-.1275v.17l.4432.6496 2.3436 3.5214.1214 1.0807-.17.3521-.6071.2125-.6679-.1214-1.3721-1.9246L14.38 17.959l-1.1414-1.9428-.1397.079-.674 7.2552-.3156.3703-.7286.2793-.6071-.4614-.3218-.7468.3218-1.4753.3886-1.9246.3157-1.53.2853-1.9004.17-.6314-.0121-.0425-.1397.0182-1.4328 1.9672-2.1796 2.9446-1.7243 1.8456-.4128.164-.7164-.3704.0667-.6618.4008-.5889 2.386-3.0357 1.4389-1.882.929-1.0868-.0062-.1579h-.0546l-6.3385 4.1164-1.1293.1457-.4857-.4554.0608-.7467.2307-.2429 1.9064-1.3114Z"/>
+    </symbol>
+    <symbol id="openaiMark" viewBox="0 0 20 20">
+      <path fill="currentColor" d="M11.248 18.25q-.825 0-1.568-.314a4.3 4.3 0 0 1-1.32-.874 4 4 0 0 1-1.304.214 4 4 0 0 1-2.046-.544 4.27 4.27 0 0 1-1.518-1.485 4 4 0 0 1-.56-2.095q0-.48.131-1.04A4.4 4.4 0 0 1 2.04 10.71a4.07 4.07 0 0 1 .017-3.4 4.2 4.2 0 0 1 1.056-1.418 3.8 3.8 0 0 1 1.6-.842 3.9 3.9 0 0 1 .76-1.683q.593-.759 1.451-1.188a4.04 4.04 0 0 1 1.832-.429q.825 0 1.567.313.742.314 1.32.875a4 4 0 0 1 1.304-.215q1.106 0 2.046.545a4.14 4.14 0 0 1 1.501 1.485q.578.941.578 2.095 0 .48-.132 1.04.66.61 1.023 1.419.363.792.363 1.666 0 .892-.38 1.717a4.3 4.3 0 0 1-1.072 1.435 3.8 3.8 0 0 1-1.584.825 3.8 3.8 0 0 1-.775 1.683 4.06 4.06 0 0 1-1.436 1.188 4.04 4.04 0 0 1-1.832.429m-4.076-2.062q.825 0 1.435-.347l3.103-1.782a.36.36 0 0 0 .164-.313v-1.42L7.881 14.62a.67.67 0 0 1-.726 0l-3.118-1.798a.5.5 0 0 1-.017.115v.198q0 .841.396 1.551.413.693 1.139 1.089a3.2 3.2 0 0 0 1.617.412m.165-2.69a.4.4 0 0 0 .181.05q.083 0 .165-.05l1.238-.71-3.977-2.31a.7.7 0 0 1-.363-.643v-3.58q-.825.362-1.32 1.122a2.9 2.9 0 0 0-.495 1.65q0 .809.413 1.55.412.743 1.072 1.123zm3.91 3.663q.875 0 1.585-.396a2.96 2.96 0 0 0 1.534-2.64v-3.564a.32.32 0 0 0-.165-.297l-1.254-.726v4.604a.7.7 0 0 1-.363.643l-3.119 1.799a3 3 0 0 0 1.783.577m.627-6.039V8.878L10.01 7.822 8.129 8.878v2.244l1.881 1.056zM7.057 5.859a.7.7 0 0 1 .363-.644l3.119-1.798a3 3 0 0 0-1.782-.578q-.874 0-1.584.396A2.96 2.96 0 0 0 6.05 4.324a3.07 3.07 0 0 0-.396 1.551v3.547q0 .199.165.314l1.237.726zm8.383 7.887q.825-.364 1.303-1.123.495-.758.495-1.65a3.15 3.15 0 0 0-.412-1.55q-.413-.743-1.073-1.123l-3.086-1.782q-.099-.065-.181-.049a.3.3 0 0 0-.165.05l-1.238.692 3.993 2.327a.6.6 0 0 1 .264.264.64.64 0 0 1 .1.363zm-3.317-8.382a.63.63 0 0 1 .726 0l3.135 1.831v-.297q0-.792-.396-1.501a2.86 2.86 0 0 0-1.105-1.155q-.71-.43-1.65-.43-.825 0-1.436.347L8.294 5.941a.36.36 0 0 0-.165.314v1.418z"/>
+    </symbol>
+    <symbol id="grokMark" viewBox="0 0 34 33">
+      <path fill="currentColor" d="M13.2371 21.0407L24.3186 12.8506C24.8619 12.4491 25.6384 12.6057 25.8973 13.2294C27.2597 16.5185 26.651 20.4712 23.9403 23.1851C21.2297 25.8989 17.4581 26.4941 14.0108 25.1386L10.2449 26.8843C15.6463 30.5806 22.2053 29.6665 26.304 25.5601C29.5551 22.3051 30.562 17.8683 29.6205 13.8673L29.629 13.8758C28.2637 7.99809 29.9647 5.64871 33.449 0.844576C33.5314 0.730667 33.6139 0.616757 33.6964 0.5L29.1113 5.09055V5.07631L13.2343 21.0436"/>
+      <path fill="currentColor" d="M10.9503 23.0313C7.07343 19.3235 7.74185 13.5853 11.0498 10.2763C13.4959 7.82722 17.5036 6.82767 21.0021 8.2971L24.7595 6.55998C24.0826 6.07017 23.215 5.54334 22.2195 5.17313C17.7198 3.31926 12.3326 4.24192 8.67479 7.90126C5.15635 11.4239 4.0499 16.8403 5.94992 21.4622C7.36924 24.9165 5.04257 27.3598 2.69884 29.826C1.86829 30.7002 1.0349 31.5745 0.36364 32.5L10.9474 23.0341"/>
+    </symbol>
   </defs>
 
-  <g clip-path="url(#frameClip)">
-    <rect width="1600" height="900" fill="url(#bg)"/>
-    <rect width="1600" height="900" fill="url(#grid)"/>
-    <rect width="1600" height="900" fill="url(#limeHalo)"/>
-    <ellipse cx="800" cy="390" rx="390" ry="250" fill="#A7FF59" opacity="0.07" filter="url(#softGlow)"/>
-    <circle cx="91" cy="68" r="2.5" fill="#C9FF64" opacity="0.8"/>
-    <circle cx="1514" cy="165" r="2" fill="#79F2B2" opacity="0.58"/>
-    <circle cx="1448" cy="812" r="2.5" fill="#6CE6FF" opacity="0.42"/>
+  <rect width="1600" height="900" fill="url(#bg)"/>
+  <rect width="1600" height="900" fill="url(#grid)"/>
+  <rect width="1600" height="900" fill="url(#halo)"/>
 
+  <g font-family="'SF Pro Display','SF Pro Text','Helvetica Neue',Arial,sans-serif">
     <!-- Header -->
-    <g font-family="'SF Pro Display','SF Pro Text','Helvetica Neue',Arial,sans-serif">
-      <rect x="88" y="70" width="196" height="38" rx="19" fill="#B9FF56" fill-opacity="0.10" stroke="#C7FF65" stroke-opacity="0.35"/>
-      <circle cx="111" cy="89" r="5" fill="#C9FF64"/>
-      <text x="128" y="95" fill="#D8FF90" font-size="17" font-weight="700" letter-spacing="2.2">AGENT STACK</text>
-      <text x="88" y="172" fill="#F5F7F6" font-size="60" font-weight="750" letter-spacing="-1.8">CURSOR MULTITASK</text>
-      <text x="88" y="213" fill="#9CA8A1" font-size="27" font-weight="450" letter-spacing="0.1">One main session. Three coding agents. Zero blocking.</text>
+    <rect x="88" y="54" width="216" height="38" rx="19" fill="#C9FF64" fill-opacity="0.09" stroke="#C9FF64" stroke-opacity="0.30"/>
+    <circle cx="111" cy="73" r="5" fill="#C9FF64"/>
+    <text x="128" y="79" fill="#D9FF91" font-size="17" font-weight="700" letter-spacing="2">MULTI-AGENT OPS</text>
+    <text x="88" y="151" fill="#F5F7F6" font-size="57" font-weight="760" letter-spacing="-1.7">CURSOR DIRECTOR</text>
+    <text x="88" y="190" fill="#9BA8A1" font-size="25" font-weight="450">Cursor directs. Composer stewards. tmux keeps every CLI session alive.</text>
 
-      <g transform="translate(1192 81)">
-        <rect width="320" height="92" rx="24" fill="#0F1613" stroke="#DDF7E9" stroke-opacity="0.10"/>
-        <circle cx="35" cy="31" r="6" fill="#85F2A9"/>
-        <text x="55" y="38" fill="#E9F7EF" font-size="20" font-weight="650">MAIN SESSION</text>
-        <text x="28" y="69" fill="#8EF1AF" font-size="17" font-weight="650" letter-spacing="1.2">ALWAYS NON-BLOCKING</text>
-      </g>
+    <g transform="translate(1190 62)">
+      <rect width="322" height="92" rx="24" fill="#0F1613" stroke="#DDF7E9" stroke-opacity="0.10"/>
+      <circle cx="35" cy="31" r="6" fill="#84F2A9"/>
+      <text x="55" y="38" fill="#E9F7EF" font-size="20" font-weight="700">MAIN SESSION</text>
+      <text x="28" y="69" fill="#8EF1AF" font-size="16" font-weight="700" letter-spacing="1.4">COORDINATE • REVIEW</text>
     </g>
 
-    <!-- Primary orchestrator card -->
+    <!-- Cursor director -->
     <g filter="url(#shadow)">
-      <rect x="470" y="258" width="660" height="266" rx="36" fill="#111713" stroke="url(#cursorStroke)" stroke-width="2"/>
-      <rect x="471" y="259" width="658" height="264" rx="35" fill="none" stroke="#FFFFFF" stroke-opacity="0.045"/>
+      <rect x="480" y="226" width="640" height="182" rx="34" fill="#111713" stroke="url(#cursorStroke)" stroke-width="2"/>
     </g>
-    <g font-family="'SF Pro Display','SF Pro Text','Helvetica Neue',Arial,sans-serif">
-      <circle cx="604" cy="375" r="76" fill="#C6FF64" opacity="0.08" filter="url(#softGlow)"/>
-      <rect x="538" y="309" width="132" height="132" rx="34" fill="#C9FF64"/>
-      <!-- Cursor official 2D cube mark -->
-      <g transform="translate(571 327) scale(0.141)" fill="#10140F">
-        <path d="M457.43,125.94L244.42,2.96c-6.84-3.95-15.28-3.95-22.12,0L9.3,125.94c-5.75,3.32-9.3,9.46-9.3,16.11v247.99c0,6.65,3.55,12.79,9.3,16.11l213.01,122.98c6.84,3.95,15.28,3.95,22.12,0l213.01-122.98c5.75-3.32,9.3-9.46,9.3-16.11v-247.99c0-6.65-3.55-12.79-9.3-16.11h-.01ZM444.05,151.99l-205.63,356.16c-1.39,2.4-5.06,1.42-5.06-1.36v-233.21c0-4.66-2.49-8.97-6.53-11.31L24.87,145.67c-2.4-1.39-1.42-5.06,1.36-5.06h411.26c5.84,0,9.49,6.33,6.57,11.39h-.01Z"/>
-      </g>
-      <text x="718" y="338" fill="#A8B4AD" font-size="17" font-weight="700" letter-spacing="2.8">ORCHESTRATOR</text>
-      <text x="714" y="389" fill="#F7FAF8" font-size="43" font-weight="740" letter-spacing="-0.7">Cursor</text>
-      <text x="716" y="425" fill="#98A59E" font-size="21" font-weight="450">Understands the task, routes the work,</text>
-      <text x="716" y="454" fill="#98A59E" font-size="21" font-weight="450">then reviews the result.</text>
+    <rect x="525" y="267" width="100" height="100" rx="28" fill="#C9FF64"/>
+    <use href="#cursorMark" x="552" y="282" width="47" height="70" style="color:#10140F"/>
+    <text x="669" y="276" fill="#AAB6AF" font-size="16" font-weight="700" letter-spacing="2.5">DIRECTOR / REVIEWER</text>
+    <text x="666" y="323" fill="#F7FAF8" font-size="40" font-weight="750">Cursor</text>
+    <text x="668" y="357" fill="#98A59E" font-size="18">Decompose • route by capability + quota • verify outputs</text>
+    <rect x="668" y="371" width="391" height="23" rx="11.5" fill="#C9FF64" fill-opacity="0.07"/>
+    <text x="684" y="388" fill="#D5FF89" font-size="13" font-weight="700" letter-spacing="1.7">NO HEAVY IMPLEMENTATION IN CURSOR</text>
 
-      <g transform="translate(538 474)">
-        <rect width="554" height="34" rx="17" fill="#C9FF64" fill-opacity="0.07"/>
-        <text x="28" y="23" fill="#D6FF8B" font-size="15" font-weight="700" letter-spacing="2">ORCHESTRATE</text>
-        <circle cx="164" cy="17" r="2.5" fill="#6D7A72"/>
-        <text x="186" y="23" fill="#D6FF8B" font-size="15" font-weight="700" letter-spacing="2">DELEGATE</text>
-        <circle cx="302" cy="17" r="2.5" fill="#6D7A72"/>
-        <text x="324" y="23" fill="#D6FF8B" font-size="15" font-weight="700" letter-spacing="2">REVIEW</text>
-        <circle cx="431" cy="17" r="2.5" fill="#6D7A72"/>
-        <text x="453" y="23" fill="#D6FF8B" font-size="15" font-weight="700" letter-spacing="2">REPEAT</text>
-      </g>
+    <!-- Director to stewards -->
+    <path d="M800 408V454" fill="none" stroke="#82F1B2" stroke-width="2.5" marker-end="url(#arrowGreen)"/>
+    <rect x="679" y="418" width="242" height="28" rx="14" fill="#0C1510" stroke="#80F1B1" stroke-opacity="0.17"/>
+    <text x="800" y="437" text-anchor="middle" fill="#8EF1AF" font-size="13" font-weight="700" letter-spacing="1.4">DISPATCH / REVIEW</text>
+
+    <!-- tmux control-plane container -->
+    <g filter="url(#shadow)">
+      <rect x="150" y="462" width="1300" height="214" rx="32" fill="#0E1513" stroke="url(#tmuxStroke)" stroke-width="2"/>
     </g>
 
-    <!-- Dynamic routing connectors -->
-    <g fill="none" stroke="url(#connector)" stroke-width="2.5" marker-end="url(#arrow)">
-      <path d="M720 524 C 678 568, 493 562, 330 626"/>
-      <path d="M800 524 C 800 563, 800 583, 800 626"/>
-      <path d="M880 524 C 922 568, 1107 562, 1270 626"/>
-    </g>
-    <g font-family="'SF Pro Text','Helvetica Neue',Arial,sans-serif" font-size="14" font-weight="700" letter-spacing="1.5" fill="#8EF1AF">
-      <rect x="671" y="542" width="258" height="30" rx="15" fill="#0D1711" stroke="#8EF1AF" stroke-opacity="0.18"/>
-      <text x="696" y="562">DYNAMIC CAPABILITY ROUTING</text>
-    </g>
-
-    <!-- Agent cards -->
-    <g font-family="'SF Pro Display','SF Pro Text','Helvetica Neue',Arial,sans-serif">
-      <!-- Claude Code -->
-      <g filter="url(#cardShadow)">
-        <rect x="90" y="636" width="420" height="190" rx="28" fill="#11161A" stroke="#D97757" stroke-opacity="0.33"/>
-      </g>
-      <rect x="122" y="672" width="84" height="84" rx="24" fill="#D97757" fill-opacity="0.11" stroke="#D97757" stroke-opacity="0.25"/>
-      <g transform="translate(140 690) scale(2)" fill="#D97757">
-        <path d="m4.7144 15.9555 4.7174-2.6471.079-.2307-.079-.1275h-.2307l-.7893-.0486-2.6956-.0729-2.3375-.0971-2.2646-.1214-.5707-.1215-.5343-.7042.0546-.3522.4797-.3218.686.0608 1.5179.1032 2.2767.1578 1.6514.0972 2.4468.255h.3886l.0546-.1579-.1336-.0971-.1032-.0972L6.973 9.8356l-2.55-1.6879-1.3356-.9714-.7225-.4918-.3643-.4614-.1578-1.0078.6557-.7225.8803.0607.2246.0607.8925.686 1.9064 1.4754 2.4893 1.8336.3643.3035.1457-.1032.0182-.0728-.164-.2733-1.3539-2.4467-1.445-2.4893-.6435-1.032-.17-.6194c-.0607-.255-.1032-.4674-.1032-.7285L6.287.1335 6.6997 0l.9957.1336.419.3642.6192 1.4147 1.0018 2.2282 1.5543 3.0296.4553.8985.2429.8318.091.255h.1579v-.1457l.1275-1.706.2368-2.0947.2307-2.6957.0789-.7589.3764-.9107.7468-.4918.5828.2793.4797.686-.0668.4433-.2853 1.8517-.5586 2.9021-.3643 1.9429h.2125l.2429-.2429.9835-1.3053 1.6514-2.0643.7286-.8196.85-.9046.5464-.4311h1.0321l.759 1.1293-.34 1.1657-1.0625 1.3478-.8804 1.1414-1.2628 1.7-.7893 1.36.0729.1093.1882-.0183 2.8535-.607 1.5421-.2794 1.8396-.3157.8318.3886.091.3946-.3278.8075-1.967.4857-2.3072.4614-3.4364.8136-.0425.0304.0486.0607 1.5482.1457.6618.0364h1.621l3.0175.2247.7892.522.4736.6376-.079.4857-1.2142.6193-1.6393-.3886-3.825-.9107-1.3113-.3279h-.1822v.1093l1.0929 1.0686 2.0035 1.8092 2.5075 2.3314.1275.5768-.3218.4554-.34-.0486-2.2039-1.6575-.85-.7468-1.9246-1.621h-.1275v.17l.4432.6496 2.3436 3.5214.1214 1.0807-.17.3521-.6071.2125-.6679-.1214-1.3721-1.9246L14.38 17.959l-1.1414-1.9428-.1397.079-.674 7.2552-.3156.3703-.7286.2793-.6071-.4614-.3218-.7468.3218-1.4753.3886-1.9246.3157-1.53.2853-1.9004.17-.6314-.0121-.0425-.1397.0182-1.4328 1.9672-2.1796 2.9446-1.7243 1.8456-.4128.164-.7164-.3704.0667-.6618.4008-.5889 2.386-3.0357 1.4389-1.882.929-1.0868-.0062-.1579h-.0546l-6.3385 4.1164-1.1293.1457-.4857-.4554.0608-.7467.2307-.2429 1.9064-1.3114Z"/>
-      </g>
-      <text x="234" y="698" fill="#F7F8F8" font-size="30" font-weight="700">Claude Code</text>
-      <text x="234" y="729" fill="#8F9A95" font-size="17" font-weight="500">Anthropic</text>
-      <rect x="234" y="752" width="216" height="34" rx="17" fill="#FFFFFF" fill-opacity="0.045"/>
-      <circle cx="254" cy="769" r="4" fill="#D97757"/>
-      <text x="268" y="775" fill="#C2CAC6" font-size="14" font-weight="700" letter-spacing="1.4">EXECUTION AGENT</text>
-
-      <!-- Codex -->
-      <g filter="url(#cardShadow)">
-        <rect x="590" y="636" width="420" height="190" rx="28" fill="#11161A" stroke="#E8F3ED" stroke-opacity="0.19"/>
-      </g>
-      <rect x="622" y="672" width="84" height="84" rx="24" fill="#E8F3ED" fill-opacity="0.08" stroke="#E8F3ED" stroke-opacity="0.18"/>
-      <g transform="translate(638 688) scale(2.6)" fill="#E8F3ED">
-        <path d="M11.248 18.25q-.825 0-1.568-.314a4.3 4.3 0 0 1-1.32-.874 4 4 0 0 1-1.304.214 4 4 0 0 1-2.046-.544 4.27 4.27 0 0 1-1.518-1.485 4 4 0 0 1-.56-2.095q0-.48.131-1.04A4.4 4.4 0 0 1 2.04 10.71a4.07 4.07 0 0 1 .017-3.4 4.2 4.2 0 0 1 1.056-1.418 3.8 3.8 0 0 1 1.6-.842 3.9 3.9 0 0 1 .76-1.683q.593-.759 1.451-1.188a4.04 4.04 0 0 1 1.832-.429q.825 0 1.567.313.742.314 1.32.875a4 4 0 0 1 1.304-.215q1.106 0 2.046.545a4.14 4.14 0 0 1 1.501 1.485q.578.941.578 2.095 0 .48-.132 1.04.66.61 1.023 1.419.363.792.363 1.666 0 .892-.38 1.717a4.3 4.3 0 0 1-1.072 1.435 3.8 3.8 0 0 1-1.584.825 3.8 3.8 0 0 1-.775 1.683 4.06 4.06 0 0 1-1.436 1.188 4.04 4.04 0 0 1-1.832.429m-4.076-2.062q.825 0 1.435-.347l3.103-1.782a.36.36 0 0 0 .164-.313v-1.42L7.881 14.62a.67.67 0 0 1-.726 0l-3.118-1.798a.5.5 0 0 1-.017.115v.198q0 .841.396 1.551.413.693 1.139 1.089a3.2 3.2 0 0 0 1.617.412m.165-2.69a.4.4 0 0 0 .181.05q.083 0 .165-.05l1.238-.71-3.977-2.31a.7.7 0 0 1-.363-.643v-3.58q-.825.362-1.32 1.122a2.9 2.9 0 0 0-.495 1.65q0 .809.413 1.55.412.743 1.072 1.123zm3.91 3.663q.875 0 1.585-.396a2.96 2.96 0 0 0 1.534-2.64v-3.564a.32.32 0 0 0-.165-.297l-1.254-.726v4.604a.7.7 0 0 1-.363.643l-3.119 1.799a3 3 0 0 0 1.783.577m.627-6.039V8.878L10.01 7.822 8.129 8.878v2.244l1.881 1.056zM7.057 5.859a.7.7 0 0 1 .363-.644l3.119-1.798a3 3 0 0 0-1.782-.578q-.874 0-1.584.396A2.96 2.96 0 0 0 6.05 4.324a3.07 3.07 0 0 0-.396 1.551v3.547q0 .199.165.314l1.237.726zm8.383 7.887q.825-.364 1.303-1.123.495-.758.495-1.65a3.15 3.15 0 0 0-.412-1.55q-.413-.743-1.073-1.123l-3.086-1.782q-.099-.065-.181-.049a.3.3 0 0 0-.165.05l-1.238.692 3.993 2.327a.6.6 0 0 1 .264.264.64.64 0 0 1 .1.363zm-3.317-8.382a.63.63 0 0 1 .726 0l3.135 1.831v-.297q0-.792-.396-1.501a2.86 2.86 0 0 0-1.105-1.155q-.71-.43-1.65-.43-.825 0-1.436.347L8.294 5.941a.36.36 0 0 0-.165.314v1.418z"/>
-      </g>
-      <text x="734" y="698" fill="#F7F8F8" font-size="30" font-weight="700">Codex</text>
-      <text x="734" y="729" fill="#8F9A95" font-size="17" font-weight="500">OpenAI</text>
-      <rect x="734" y="752" width="216" height="34" rx="17" fill="#FFFFFF" fill-opacity="0.045"/>
-      <circle cx="754" cy="769" r="4" fill="#A8F0C4"/>
-      <text x="768" y="775" fill="#C2CAC6" font-size="14" font-weight="700" letter-spacing="1.4">EXECUTION AGENT</text>
-
-      <!-- Grok Build -->
-      <g filter="url(#cardShadow)">
-        <rect x="1090" y="636" width="420" height="190" rx="28" fill="#11161A" stroke="#72C7FF" stroke-opacity="0.28"/>
-      </g>
-      <rect x="1122" y="672" width="84" height="84" rx="24" fill="#72C7FF" fill-opacity="0.08" stroke="#72C7FF" stroke-opacity="0.22"/>
-      <!-- Grok official circular-slash mark -->
-      <g transform="translate(1145 687) scale(1.55)" fill="#F0F6FA">
-        <path d="M13.2371 21.0407L24.3186 12.8506C24.8619 12.4491 25.6384 12.6057 25.8973 13.2294C27.2597 16.5185 26.651 20.4712 23.9403 23.1851C21.2297 25.8989 17.4581 26.4941 14.0108 25.1386L10.2449 26.8843C15.6463 30.5806 22.2053 29.6665 26.304 25.5601C29.5551 22.3051 30.562 17.8683 29.6205 13.8673L29.629 13.8758C28.2637 7.99809 29.9647 5.64871 33.449 0.844576C33.5314 0.730667 33.6139 0.616757 33.6964 0.5L29.1113 5.09055V5.07631L13.2343 21.0436"/>
-        <path d="M10.9503 23.0313C7.07343 19.3235 7.74185 13.5853 11.0498 10.2763C13.4959 7.82722 17.5036 6.82767 21.0021 8.2971L24.7595 6.55998C24.0826 6.07017 23.215 5.54334 22.2195 5.17313C17.7198 3.31926 12.3326 4.24192 8.67479 7.90126C5.15635 11.4239 4.0499 16.8403 5.94992 21.4622C7.36924 24.9165 5.04257 27.3598 2.69884 29.826C1.86829 30.7002 1.0349 31.5745 0.36364 32.5L10.9474 23.0341"/>
-      </g>
-      <text x="1234" y="698" fill="#F7F8F8" font-size="30" font-weight="700">Grok Build</text>
-      <text x="1234" y="729" fill="#8F9A95" font-size="17" font-weight="500">SpaceXAI</text>
-      <rect x="1234" y="752" width="216" height="34" rx="17" fill="#FFFFFF" fill-opacity="0.045"/>
-      <circle cx="1254" cy="769" r="4" fill="#72C7FF"/>
-      <text x="1268" y="775" fill="#C2CAC6" font-size="14" font-weight="700" letter-spacing="1.4">EXECUTION AGENT</text>
+    <!-- tmux identity -->
+    <rect x="186" y="497" width="96" height="82" rx="22" fill="#42C65B" fill-opacity="0.12" stroke="#4ADB69" stroke-opacity="0.35"/>
+    <rect x="205" y="516" width="58" height="44" rx="7" fill="#07100C" stroke="#61E678" stroke-opacity="0.70"/>
+    <circle cx="216" cy="526" r="2.5" fill="#FF7D72"/>
+    <circle cx="225" cy="526" r="2.5" fill="#FFD166"/>
+    <circle cx="234" cy="526" r="2.5" fill="#6FE889"/>
+    <text x="215" y="551" fill="#8DFFA0" font-size="18" font-family="Menlo,Monaco,monospace" font-weight="700">›_</text>
+    <text x="310" y="514" fill="#8EF1AF" font-size="15" font-weight="700" letter-spacing="2.2">EXECUTION SUBSTRATE</text>
+    <text x="307" y="551" fill="#F3F8F5" font-size="28" font-weight="750" word-spacing="4">tmux Control Plane</text>
+    <text x="310" y="578" fill="#8C9993" font-size="16" font-family="Menlo,Monaco,monospace">tmux -L cursor-&lt;id&gt;</text>
+    <g transform="translate(186 607)">
+      <rect width="365" height="35" rx="17.5" fill="#FFFFFF" fill-opacity="0.04"/>
+      <text x="21" y="23" fill="#AFC0B7" font-size="13" font-weight="700" letter-spacing="1.5">ISOLATED • PERSISTENT • INTERACTIVE</text>
     </g>
 
-    <!-- Footer statement -->
-    <g font-family="'SF Pro Text','Helvetica Neue',Arial,sans-serif">
-      <text x="800" y="864" text-anchor="middle" fill="#74817A" font-size="15" font-weight="650" letter-spacing="2.6">PARALLEL WORK  •  CENTRAL REVIEW  •  CONTINUOUS FLOW</text>
+    <!-- Steward layer -->
+    <rect x="588" y="486" width="819" height="72" rx="22" fill="#B6A6FF" fill-opacity="0.065" stroke="#B6A6FF" stroke-opacity="0.20"/>
+    <rect x="610" y="503" width="44" height="38" rx="12" fill="#B6A6FF" fill-opacity="0.16"/>
+    <text x="632" y="528" text-anchor="middle" fill="#D8CFFF" font-size="13" font-weight="800">C2.5</text>
+    <text x="674" y="515" fill="#CFC5FF" font-size="14" font-weight="700" letter-spacing="2">COMPOSER 2.5 SESSION STEWARDS</text>
+    <text x="674" y="539" fill="#949F99" font-size="15">one per task • launch • observe • steer • report • never implement</text>
+    <g transform="translate(1210 502)">
+      <rect width="174" height="40" rx="20" fill="#FFFFFF" fill-opacity="0.045"/>
+      <circle cx="22" cy="20" r="4" fill="#B6A6FF"/>
+      <text x="38" y="25" fill="#C8D0CC" font-size="13" font-weight="700" letter-spacing="1">CAPTURE-PANE</text>
     </g>
+
+    <!-- internal control arrows -->
+    <path d="M735 558V585" fill="none" stroke="#78958A" stroke-width="1.7" marker-end="url(#arrowSoft)"/>
+    <path d="M1001 558V585" fill="none" stroke="#78958A" stroke-width="1.7" marker-end="url(#arrowSoft)"/>
+    <path d="M1267 558V585" fill="none" stroke="#78958A" stroke-width="1.7" marker-end="url(#arrowSoft)"/>
+
+    <!-- tmux sessions -->
+    <g font-family="Menlo,Monaco,monospace" font-size="14" font-weight="700">
+      <rect x="604" y="588" width="250" height="58" rx="17" fill="#121A1E" stroke="#D97757" stroke-opacity="0.28"/>
+      <circle cx="627" cy="609" r="4" fill="#D97757"/>
+      <text x="642" y="614" fill="#E7B09D">t1-claude-&lt;slug&gt;</text>
+      <text x="627" y="634" fill="#718079" font-size="11">interactive TUI session</text>
+
+      <rect x="875" y="588" width="250" height="58" rx="17" fill="#121A1E" stroke="#A8F0C4" stroke-opacity="0.22"/>
+      <circle cx="898" cy="609" r="4" fill="#A8F0C4"/>
+      <text x="913" y="614" fill="#D7E7DF">t2-codex-&lt;slug&gt;</text>
+      <text x="898" y="634" fill="#718079" font-size="11">interactive TUI session</text>
+
+      <rect x="1146" y="588" width="250" height="58" rx="17" fill="#121A1E" stroke="#72C7FF" stroke-opacity="0.26"/>
+      <circle cx="1169" cy="609" r="4" fill="#72C7FF"/>
+      <text x="1184" y="614" fill="#B8DEFA">t3-grok-&lt;slug&gt;</text>
+      <text x="1169" y="634" fill="#718079" font-size="11">interactive TUI session</text>
+    </g>
+
+    <!-- tmux to local CLI agents -->
+    <path d="M729 646V704" fill="none" stroke="#D97757" stroke-opacity="0.50" stroke-width="2" marker-end="url(#arrowSoft)"/>
+    <path d="M1000 646V704" fill="none" stroke="#A8F0C4" stroke-opacity="0.44" stroke-width="2" marker-end="url(#arrowSoft)"/>
+    <path d="M1271 646V704" fill="none" stroke="#72C7FF" stroke-opacity="0.48" stroke-width="2" marker-end="url(#arrowSoft)"/>
+
+    <!-- CLI agent cards -->
+    <g filter="url(#smallShadow)">
+      <rect x="88" y="710" width="438" height="134" rx="26" fill="#11161A" stroke="#D97757" stroke-opacity="0.32"/>
+      <rect x="581" y="710" width="438" height="134" rx="26" fill="#11161A" stroke="#E8F3ED" stroke-opacity="0.17"/>
+      <rect x="1074" y="710" width="438" height="134" rx="26" fill="#11161A" stroke="#72C7FF" stroke-opacity="0.27"/>
+    </g>
+
+    <rect x="116" y="735" width="78" height="78" rx="22" fill="#D97757" fill-opacity="0.11" stroke="#D97757" stroke-opacity="0.24"/>
+    <use href="#claudeMark" x="132" y="751" width="46" height="46" style="color:#D97757"/>
+    <text x="220" y="754" fill="#89968F" font-size="13" font-weight="700" letter-spacing="1.8">LOCAL CLI • COMPLEX</text>
+    <text x="217" y="790" fill="#F7F8F8" font-size="28" font-weight="720">Claude Code</text>
+    <text x="218" y="817" fill="#8F9A95" font-size="15">Fable High / Opus 4.8 Extra High</text>
+
+    <rect x="609" y="735" width="78" height="78" rx="22" fill="#E8F3ED" fill-opacity="0.08" stroke="#E8F3ED" stroke-opacity="0.16"/>
+    <use href="#openaiMark" x="624" y="750" width="48" height="48" style="color:#E8F3ED"/>
+    <text x="713" y="754" fill="#89968F" font-size="13" font-weight="700" letter-spacing="1.8">LOCAL CLI • GENERAL</text>
+    <text x="710" y="790" fill="#F7F8F8" font-size="28" font-weight="720">Codex</text>
+    <text x="711" y="817" fill="#8F9A95" font-size="15">GPT 5.6 SOL • High Effort</text>
+
+    <rect x="1102" y="735" width="78" height="78" rx="22" fill="#72C7FF" fill-opacity="0.08" stroke="#72C7FF" stroke-opacity="0.20"/>
+    <use href="#grokMark" x="1118" y="751" width="46" height="45" style="color:#F0F6FA"/>
+    <text x="1206" y="754" fill="#89968F" font-size="13" font-weight="700" letter-spacing="1.8">LOCAL CLI • GENERAL</text>
+    <text x="1203" y="790" fill="#F7F8F8" font-size="28" font-weight="720">Grok Build</text>
+    <text x="1204" y="817" fill="#8F9A95" font-size="15">Grok 4.5 • High Effort</text>
+
+    <text x="800" y="877" text-anchor="middle" fill="#738079" font-size="14" font-weight="700" letter-spacing="2.2">ONE SOCKET PER CURSOR CONVERSATION  •  ONE TMUX SESSION PER TASK  •  FULL LOGS + MID-RUN STEERING</text>
   </g>
 </svg>
