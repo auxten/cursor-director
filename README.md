@@ -10,9 +10,9 @@ Cursor keeps the main session responsive while it understands the request, deleg
 
 - **Cursor is the director:** it decomposes work, selects agents, and reviews their output.
 - **Claude Code CLI handles complex work:** use Fable with High Effort or Opus 4.8 with Extra High.
-- **Codex CLI and Grok CLI handle general execution:** use GPT 5.6 SOL for Codex, or invoke Grok with its verified non-interactive flags.
+- **Codex CLI and Grok CLI handle general execution:** use GPT 5.6 SOL for Codex, or Grok 4.5 with High Effort via `--single --always-approve`.
 - **Composer 2.5 handles extremely simple tasks.**
-- **Quota-aware routing:** avoid an agent when either its rolling 5-hour or weekly usage reaches 80%.
+- **Quota-aware routing:** query Claude with `claude -p "/usage"`, Codex with interactive `/status`, and Grok with interactive `/usage show`; treat limits a CLI does not expose as unknown, and avoid an agent when a known limit reaches 80%.
 - **Non-blocking execution:** local CLI agents run in background shells with confirmation skipping enabled, within the scope already authorized by the user.
 - **Evidence-based review:** Cursor checks diffs, logs, tests, and artifacts instead of trusting self-reported success.
 
@@ -22,7 +22,7 @@ Cursor keeps the main session responsive while it understands the request, deleg
 | --- | --- |
 | Extremely simple | Composer 2.5 |
 | Complex reasoning, architecture, or debugging | Claude Code CLI: Fable · High Effort, or Opus 4.8 · Extra High |
-| Routine or moderately complex implementation | Codex CLI: GPT 5.6 SOL · High Effort, or Grok CLI |
+| Routine or moderately complex implementation | Codex CLI: GPT 5.6 SOL · High Effort, or Grok CLI: Grok 4.5 · High Effort |
 
 ## Use it
 

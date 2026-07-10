@@ -21,11 +21,13 @@ on my machine, launched as background shell commands from the repo root:
      -m gpt-5.6-sol -c model_reasoning_effort=high "<task brief>"
 
 3. Routine / moderately complex implementation (alternative) → Grok CLI:
-   grok <non-interactive + skip-confirmation flags> "<task brief>"
+   grok --model grok-4.5 --reasoning-effort high --always-approve \
+     --single "<task brief>"
 
-Before first use of each CLI in a session, run `<cli> --help` once to verify the exact
-non-interactive and skip-confirmation flags, then reuse them. Launch CLIs in background
-shells (do not block), keep their stdout/stderr in the terminal output for review.
+The Grok template above was verified with Grok 0.2.93. If an installed CLI version
+differs or rejects a flag, run `<cli> --help` and the relevant subcommand help before
+dispatch. Launch CLIs in background shells (do not block), keeping stdout/stderr in
+the terminal output for review.
 
 Exception — extremely simple tasks: you may use Cursor's Composer 2.5 subagent or do
 them directly in the foreground.
@@ -35,9 +37,16 @@ criteria, and "do not commit" unless I say so.
 
 Quota policy:
 Track 5-hour rolling and weekly limits for Claude Code / Codex / Grok. Check real usage
-where possible (e.g. `ccusage` or `claude /usage` for Claude Code); if a CLI has no
-usage query, mark its quota as UNKNOWN — never invent numbers. At ≥80% of either limit,
-reroute to an eligible alternative.
+with these verified queries:
+- Claude Code: `claude -p "/usage"` (non-interactive; current session and weekly usage).
+- Codex: start `codex`, then run `/status` (interactive-only; 5-hour and weekly usage).
+  `codex login status` reports authentication only, not quota.
+- Grok: start `grok`, then run `/usage show` (interactive-only; weekly usage only).
+  Grok's 5-hour usage is not exposed by this CLI version, so mark it UNKNOWN.
+`ccusage` summarizes locally recorded tokens/costs and inferred 5-hour blocks; it does
+not report subscription quota percentages and is not a quota source. If a query is
+unavailable or omits a limit, mark that limit UNKNOWN — never invent numbers. At ≥80%
+of either known limit, reroute to an eligible alternative.
 
 Review policy:
 Never accept a CLI agent's success claim without evidence: inspect `git diff`, read its
