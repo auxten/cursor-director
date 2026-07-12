@@ -48,7 +48,7 @@ newlines — task briefs above all — goes through load-buffer + paste-buffer.
 Templates (socket cursor-ab12cd, task 3 on codex; adapt names):
 - Create:  tmux -L cursor-ab12cd new-session -d -s t3-codex-fix-auth -c "$PWD"
 - Launch:  # step 1 — start the CLI inside the session's shell. TASK_DONE prints only
-           # after the TUI process exits (see the exit flow in the steward duties):
+           # if the TUI process ever exits (a crash, or explicit cleanup — see Lifecycle):
            tmux -L cursor-ab12cd send-keys -t t3-codex-fix-auth -l 'codex --dangerously-bypass-approvals-and-sandbox -m gpt-5.6-sol -c model_reasoning_effort=high; echo TASK_DONE=$?'
            tmux -L cursor-ab12cd send-keys -t t3-codex-fix-auth Enter
            # step 2 — poll capture-pane until the TUI input box is ready
@@ -64,7 +64,9 @@ Templates (socket cursor-ab12cd, task 3 on codex; adapt names):
 - Observe: tmux -L cursor-ab12cd capture-pane -p -t t3-codex-fix-auth -S -150
 - Steer:   short: send-keys -l '<instruction>' then send-keys Enter, as in Launch
            step 1; multiline: buffer paste as in Launch step 3
-- Cleanup: tmux -L cursor-ab12cd kill-session -t t3-codex-fix-auth
+- Mark done: tmux -L cursor-ab12cd rename-session -t t3-codex-fix-auth done-t3-codex-fix-auth
+- Cleanup (only when policy allows, see Lifecycle):
+           tmux -L cursor-ab12cd kill-session -t done-t3-codex-fix-auth
 
 Steward subagent (one Composer 2.5 subagent per task session):
 - Launch the CLI and paste the brief using the templates above.
@@ -82,19 +84,28 @@ Steward subagent (one Composer 2.5 subagent per task session):
 - Relay any mid-run instruction I give (forwarded by you) into the CLI (buffer paste
   for anything multiline).
 - On Done: first confirm with you that no follow-up instruction is pending for this
-  session, then quit the TUI: claude → /exit, codex → /quit, grok → /exit (each
-  followed by Enter; verified against the installed versions). If it is still alive
-  after ~10s, fall back to send-keys C-c twice, then C-d, and note the fallback in
-  the report. Only after the TUI exits does the shell print `TASK_DONE=<exit code>` —
-  that line is the exit confirmation and the exit-code source, not the completion
-  signal. (A nonzero code right after a forced C-c/C-d exit reflects the kill, not
-  the task — report it as a forced exit, not a task error.)
-- Then capture the full scrollback (`capture-pane -p -S -`), report back the result,
-  key log lines, and a `git diff --stat` summary; then kill its session.
+  session. Then capture the full scrollback (`capture-pane -p -S -`) and report back
+  the result, key log lines, and a `git diff --stat` summary. Do NOT quit the TUI and
+  do NOT kill the session: I want the chat content left visible in the tmux window so
+  I can attach and read the history later. Instead, mark the session as finished by
+  renaming it with a `done-` prefix (Mark done template above) so finished-but-kept
+  sessions are recognizable in list-sessions.
+- If a session does get exited/killed (crash, explicit cleanup, or old sessions from
+  before this policy), the shell prints `TASK_DONE=<exit code>` — that line is an exit
+  confirmation and exit-code source only, never the completion signal. Claude Code
+  history additionally remains recoverable via `claude --resume <session-id>` (it is
+  persisted under ~/.claude/projects/).
 
 Lifecycle:
-- Per task: steward kills the session after reporting; the diff stays in the worktree
-  for your review.
+- Per task: after reporting, the steward leaves the TUI running and the tmux session
+  alive (renamed done-*); the diff stays in the worktree for your review. I can attach
+  with `tmux -L cursor-<id> attach -t <name>` and detach with Ctrl-b d.
+- Kill a task session only when: I explicitly ask for cleanup, the same task is being
+  relaunched/redirected in a fresh session, or system resources demand it.
+- Because sessions outlive their tasks, session existence is NOT a "task finished"
+  signal. Cross-steward coordination must use idle detection (input prompt visible +
+  pane unchanged across polls) or explicit sentinel checks (e.g. `pgrep xcodebuild`),
+  never session liveness.
 - Session end (or when I say "wrap up"): tmux -L cursor-<id> kill-server
 - Orphan check at session start: `ls /tmp/tmux-$(id -u)/ | grep '^cursor-'`, then
   `tmux -L <name> list-sessions` for each. Other cursor-* sockets may belong to live
@@ -127,6 +138,17 @@ steward's captured log, build/test where appropriate (builds and tests may run a
 foreground shell commands — they don't consume model tokens). Send rework to the most
 suitable CLI with your review findings attached. Return me one concise consolidated
 result per request.
+
+Post-task regression verification (apps with a testable UI, e.g. the iOS apps):
+Implementation is NOT done at BUILD SUCCEEDED. Definition of done includes a simulator
+regression pass of the implemented feature plus a basic smoke of adjacent flows:
+build → install on the simulator → exercise the feature → screenshot evidence →
+pass/fail report. The regression may be run by the same CLI agent that implemented the
+feature, or dispatched as a dedicated regression task to a different CLI (e.g. Grok) —
+your choice, based on quota and how independent the review should be. Required
+evidence: a screenshot per verified item, a pass/fail table, and repro steps for every
+bug found. When the target repo has its own testing conventions (e.g. a CLAUDE.md with
+testing principles, self-test suites, or test scripts), follow those first.
 
 Authorization scope:
 Skip-confirmation flags apply only within the scope of my explicit request. No
