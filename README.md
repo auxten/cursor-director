@@ -27,9 +27,33 @@ Each Cursor conversation gets its own tmux server on a dedicated socket (`tmux -
 | Complex reasoning, architecture, or debugging | Claude Code CLI: Fable · High Effort, or Opus 4.8 · Extra High |
 | Routine or moderately complex implementation | Codex CLI: GPT 5.6 SOL · High Effort, or Grok CLI: Grok 4.5 · High Effort |
 
+## Two variants (v2)
+
+- [prompt-cursor.md](./prompt-cursor.md) — Cursor as director; workers: Claude Code CLI / Codex / Grok; per-task Composer 2.5 stewards drive `watch.sh` in short blocking chunks.
+- [prompt-claude-code.md](./prompt-claude-code.md) — Claude Code as director; workers: Codex / Grok; `watch.sh` runs as a background shell process that wakes the director on exit — no subagents at all, the director judges ambiguous panes itself (cheap-model stewards proved unreliable at watch duty). A non-blocking discipline section reproduces Cursor's Multi-Task feel: foreground turns stay short, new requests are routed (via the `STATE.md` table) before current work resumes, so the director is effectively always available.
+
+v2 changes shared by both:
+
+- **Files are the data channel**: per-task `.tasks/` briefs, reports, `.done` sentinels, plus a `STATE.md` orchestration table so a fresh director session can resume the control plane after context loss. tmux scrollback is demoted to human viewing and forensics.
+- **Two dispatch lanes**: Lane A (default) runs headless `codex exec` / `claude -p` *inside* a tmux session — process exit is the completion signal, no TUI-idleness heuristics — while the pane still streams live output; Lane B keeps the interactive TUI for tasks that need mid-run steering.
+- **Zero-token waiting**: a ~15-line `watch.sh` (sentinel check + pane-hash idle detection + timeout) replaces model-driven polling; models only judge ambiguous panes, one shot at a time.
+- **Take-over preserved and upgraded**: worker sessions stay visible in the Claude Code / Codex desktop apps because the CLIs persist all sessions (headless included); take over by attaching, Ctrl-C, then `codex resume` / `claude --resume` in the same pane. An explicit takeover protocol stops the director from steering a session the user has claimed.
+- **Pairing (Codex ⇄ Grok cross-review)**: a non-trivial diff is dispatched to the *other* CLI as a reviewer that writes a structured `APPROVE | REWORK` verdict + findings to a review file; the director arbitrates and ping-pongs rework back to the implementer up to a three-attempt ladder. Independent model, blind-spot coverage, and it runs on CLI tokens — not the director's. High-risk work can also split implementer vs. independent test-writer against the same spec.
+- **Dispatch emergent work too**: the "never do it yourself" rule is stated to cover problems that surface *mid-session* (a bug found in review, a follow-on hardening, "it's just one file") — the one measured failure mode where the director slid back into hands-on coding.
+- **Detached-worktree isolation** when parallel tasks write the same repo, and **cached quota checks** (30-minute TTL, checked before long dispatches instead of as a ritual).
+
+## Field results (measured, 2026-07)
+
+Reconstructed from real session transcripts in this repo's home project. The framework's token win is structural, not a per-turn discount:
+
+- **Context never fills up.** The heaviest do-it-all-yourself sessions pinned peak context at 830K–990K tokens (near the 1M ceiling → perpetual, lossy compaction). Every framework session stayed at 390K–600K with headroom to spare.
+- **Implementation runs off-ledger.** Framework sessions dispatched 16–23 CLI tasks whose code generation never entered the director's output-token count; an equivalent direct session logged 29–200 hand-edits and 0.6M–3.6M director output tokens.
+- **The one leak** was scope creep: when a director let mid-session work pull it into direct coding, its peak context jumped to the group high — which is why the "dispatch emergent work too" rule now exists.
+- **Cheap stewards are unreliable** at watch duty (one shirked its report, another mis-attributed a shared-tree diff) — hence the Claude Code variant drops stewards entirely and the Cursor variant escalates a shirking steward to a stronger model.
+
 ## Use it
 
-Copy the prompt in [prompt.md](./prompt.md) into a new Cursor conversation, then describe the work normally. Cursor remains the single point of coordination while the execution agents work inside the session's tmux behind it.
+Copy the prompt of your chosen variant into a new conversation, then describe the work normally. The director remains the single point of coordination while the execution agents work inside the session's tmux behind it.
 
 ## 路由机制教训
 
