@@ -20,8 +20,11 @@ Routing (a brief = 15–60 min of agent work, ONE reviewable diff; split bigger 
 ≤3 tasks in flight or review becomes the bottleneck):
 - Complex reasoning / architecture / hard debugging → Claude Code CLI (fable high, or
   opus extra-high for the hardest).
-- Routine implementation → Codex (gpt-5.6-sol, high effort) or Grok (grok-4.5, high).
-  Prefer Grok for parallel throughput, cross-review, regression; else balance by quota.
+- Routine implementation → Codex (gpt-5.6-sol, high effort) or Grok (grok-build via
+  Lane C; grok-4.5 high on Lane B).
+  Pick whichever has the higher remaining WEEKLY quota (per the Quota check below); if
+  both are UNKNOWN or effectively tied, prefer Grok for parallel throughput,
+  cross-review, regression.
 - Trivial tasks → a Composer 2.5 subagent, or the foreground.
 
 Session start (once):
@@ -29,7 +32,8 @@ Session start (once):
 - Orphans: `ls /tmp/tmux-$(id -u)/ | grep '^cursor-'`, then list-sessions each. Other
   cursor-* may be live parallel directors — ask before killing; auto-kill only your own.
 - `mkdir -p .tasks/bin`; `grep -qxF '.tasks/' .git/info/exclude || echo '.tasks/' >> .git/info/exclude`.
-- Write watch.sh (below) to .tasks/bin/, chmod +x. Initialize .tasks/STATE.md.
+- Write watch.sh + acp-run.mjs (below) to .tasks/bin/, chmod +x watch.sh. Initialize
+  .tasks/STATE.md.
 
 Files are the data channel (tmux scrollback is for humans/forensics — never parse it):
 - .tasks/t<N>-brief.md / -report.md / -review.md / .done / .log
@@ -52,7 +56,7 @@ heuristics); pane still streams live:
   tmux -L cursor-ab12cd send-keys -t t3-codex-fix-auth Enter
 Claude Code worker: same wrapper with `claude -p --dangerously-skip-permissions --model
 fable "Read .tasks/t3-brief.md and execute it."` (add --verbose for live pane progress).
-Grok uses Lane A only if `grok --help` shows a headless mode (-p/--prompt); else Lane B.
+Grok defaults to Lane C (below), not Lane A.
 
 Lane B — interactive TUI (only for expected mid-run steering, or a CLI with no headless
 mode). Launch, poll capture-pane until the input box is ready, then send ONE line
@@ -66,6 +70,60 @@ pointing at the brief:
   capture-pane.) Steering is the DIRECTOR's job, not the steward's: short send-keys
   nudges; longer → write .tasks/t<N>-steer.md and send 'Read .tasks/t3-steer.md and
   adjust.' Completion = the worker's .done touch.
+
+Lane C — ACP dispatch (Grok's DEFAULT). acp-run.mjs speaks Agent Client Protocol (ndjson
+JSON-RPC over stdio) to the worker inside the pane: turn-end is a hard signal like Lane
+A, and every tool call / permission request + answer lands machine-readable in
+.tasks/t<N>.log — review evidence for free. One-shot like Lane A; mid-run steering still
+means Lane B:
+  tmux -L cursor-ab12cd send-keys -t t3-grok-fix-auth -l 'node .tasks/bin/acp-run.mjs t3 grok agent stdio'
+  tmux -L cursor-ab12cd send-keys -t t3-grok-fix-auth Enter
+Grok's ACP mode pins the model to grok-build, its agentic coding model (--model is
+ignored; grok-4.5 flags are Lane B only). A Claude worker can also run Lane C:
+  node .tasks/bin/acp-run.mjs t3 npx -y @agentclientprotocol/claude-agent-acp
+It uses your default `claude` model and persists under ~/.claude/projects (verified) —
+takeover via `claude --resume`; for an explicit fable/opus pick keep Lane A. .done
+contents: STOP=end_turn = clean; ERROR=/EXIT= = abnormal — check the log before Pairing.
+Codex stays on Lane A for now: codex-acp 0.16.0 bundles a core that rejects gpt-5.6-sol;
+after a `brew upgrade codex-acp` retry with:
+  node .tasks/bin/acp-run.mjs t<N> codex-acp -c 'model="gpt-5.6-sol"' -c 'model_reasoning_effort="high"'
+
+.tasks/bin/acp-run.mjs — the Lane C bridge (verified E2E against `grok agent stdio` and
+`npx -y @agentclientprotocol/claude-agent-acp`). It auto-approves permission requests —
+same trust as Lane A's bypass flags, but each request/answer is logged; tighten the
+find() policy line for sensitive tasks. Needs node; without it Grok falls back to Lane B:
+  #!/usr/bin/env node
+  // acp-run.mjs <task-id> <agent-cmd> [args...] — dispatch the brief via ACP, mirror
+  // agent text to the pane, log all JSON-RPC to .tasks/<id>.log, write .tasks/<id>.done.
+  import { spawn } from 'node:child_process'
+  import fs from 'node:fs'
+  const [id, ...cmd] = process.argv.slice(2)
+  const log = m => fs.appendFileSync(`.tasks/${id}.log`, JSON.stringify(m) + '\n')
+  const fin = s => { fs.appendFileSync(`.tasks/${id}.done`, s + '\n'); try { p.kill() } catch {}; process.exit(0) }
+  const p = spawn(cmd[0], cmd.slice(1), { stdio: ['pipe', 'pipe', 'inherit'] })
+  const send = m => { log(m); p.stdin.write(JSON.stringify(m) + '\n') }
+  let buf = ''
+  send({ jsonrpc: '2.0', id: 1, method: 'initialize', params: { protocolVersion: 1, clientCapabilities: {} } })
+  p.stdout.on('data', d => {
+    buf += d
+    for (let i; (i = buf.indexOf('\n')) >= 0; buf = buf.slice(i + 1)) {
+      let m; try { m = JSON.parse(buf.slice(0, i)) } catch { continue }
+      log(m)
+      if (m.method === 'session/request_permission') {
+        const o = m.params.options.find(x => x.kind === 'allow_always') || m.params.options.find(x => x.kind === 'allow_once')
+        send({ jsonrpc: '2.0', id: m.id, result: { outcome: o ? { outcome: 'selected', optionId: o.optionId } : { outcome: 'cancelled' } } })
+      } else if (m.method === 'session/update') {
+        const u = m.params.update
+        if (u.sessionUpdate === 'agent_message_chunk' && u.content?.type === 'text') process.stdout.write(u.content.text)
+      } else if (m.method) {
+        if (m.id !== undefined) send({ jsonrpc: '2.0', id: m.id, error: { code: -32601, message: 'unsupported' } })
+      } else if (m.error) { console.error('\nACP error:', JSON.stringify(m.error)); fin('ERROR=' + (m.error.message || m.error.code)) }
+      else if (m.id === 1) send({ jsonrpc: '2.0', id: 2, method: 'session/new', params: { cwd: process.cwd(), mcpServers: [] } })
+      else if (m.id === 2) send({ jsonrpc: '2.0', id: 3, method: 'session/prompt', params: { sessionId: m.result.sessionId, prompt: [{ type: 'text', text: `Read .tasks/${id}-brief.md and execute it.` }] } })
+      else if (m.id === 3) fin('STOP=' + m.result.stopReason)
+    }
+  })
+  p.on('exit', c => { fs.appendFileSync(`.tasks/${id}.done`, `EXIT=${c}\n`); process.exit(c ?? 1) })
 
 Watching — the steward waits with shell time, not model calls. .tasks/bin/watch.sh:
   #!/bin/bash
@@ -85,8 +143,8 @@ Watching — the steward waits with shell time, not model calls. .tasks/bin/watc
 
 Steward subagent (one Composer 2.5 per task; prompt is self-contained — socket, session,
 task id, lane, launch line, these duties — a subagent starts with zero context):
-- Create the session, launch the worker (Lane A wrapper, or Lane B launch + brief
-  pointer). Then loop `.tasks/bin/watch.sh <socket> <session> t<N> 8` as a blocking call
+- Create the session, launch the worker (Lane A wrapper, Lane C bridge line, or Lane B
+  launch + brief pointer). Then loop `.tasks/bin/watch.sh <socket> <session> t<N> 8` as a blocking call
   — ONE tool call per 8 min, no pane content entering your context:
   1 → still running; call again. Cap waiting at 45 min (unless brief says longer) → then
       report TIMEOUT.  2 → capture the pane ONCE and judge: DONE (sentinel forgotten —
@@ -129,7 +187,9 @@ Claude Code and Codex persist ALL sessions (headless -p/exec included) under
 ~/.claude/projects and ~/.codex/sessions — visible in their apps, resumable (`claude
 --resume`, `codex resume`). So take a Lane A task over as a full TUI: attach, Ctrl-C,
 `codex resume --last` (or `claude --resume`). Grok takeover is attach-only unless --help
-shows resume.
+shows resume; Lane C Grok sessions don't appear in `grok sessions list` (verified) —
+takeover there is attach, Ctrl-C the bridge, redispatch. Lane C Claude sessions DO
+persist → `claude --resume`.
 
 Parallel same-repo tasks: ≥2 in-flight writing one repo → isolate each in a detached
 worktree `git worktree add --detach .tasks/wt/t<N>`, brief the worker to work there,
@@ -151,8 +211,10 @@ dispatch (not as a ritual):
   autocomplete menu appears). 5-hour + weekly.
 - Grok: same in `quota-grok` with `grok --no-alt-screen` + '/usage show'. Weekly only;
   5-hour UNKNOWN.
-`ccusage` is local token history, not a quota source. Failed/omitted limit = UNKNOWN,
-never invent. At ≥80% of a known limit, reroute to an eligible alternative.
+`ccusage` is local token history, not a quota source, and ACP exposes no usage RPC —
+the TUI probes above stay. Failed/omitted limit = UNKNOWN, never invent. Remaining
+WEEKLY quota is the Codex-vs-Grok routing key — the higher one gets the work. At ≥80%
+of a known limit, reroute to an eligible alternative.
 
 Lifecycle: finished sessions keep running under a done- prefix — transcript stays
 attachable; existence is NOT completion (only .done is). Kill a session only on my
