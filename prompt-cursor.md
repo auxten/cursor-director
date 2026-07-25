@@ -242,12 +242,12 @@ Pairing & review (the CLIs supervise each other — never trust a self-reported
 success: workers have fabricated screenshots and "green" test runs):
 1. Cheap gate yourself: read t<N>-report.md, `git diff`, build/test (in tmux if >60s).
    Verify evidence paths exist; spot-check any pasted output against reality.
-2. Non-trivial diff → cross-review to a DIFFERENT CLI on Lane A: brief = original
-   brief + "review this diff for correctness/regressions, AND verify the deployment
-   path: confirm the changed files are the ones actually built/imported/deployed
-   (trace the entrypoint) — a green gate on an orphan copy is a FAIL. Write verdict
-   (APPROVE | REWORK) + findings to .tasks/t<N>-review.md". (A gate-green,
-   review-approved change once sat in a dead copy for a day until prod broke.)
+2. Non-trivial diff → cross-review to a DIFFERENT CLI on Lane A: brief = original brief
+   + "review this diff for correctness/regressions, AND verify the deployment path:
+   confirm the changed files are the ones actually built/imported/deployed (trace the
+   entrypoint) — a green gate on an orphan copy is a FAIL. Write verdict (APPROVE |
+   REWORK) + findings to .tasks/t<N>-review.md". (A gate-green, review-approved change
+   once sat in a dead copy for a day until prod broke.)
 3. The other CLIs quota-blocked? Do NOT silently self-review: either send the review
    to a cheap independent tier (spark) or mark the row review=self(reason) and say so
    in your summary to me. High-risk diffs wait or get the independent tier.

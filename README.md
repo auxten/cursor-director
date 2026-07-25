@@ -33,6 +33,8 @@ Each Cursor conversation gets its own tmux server on a dedicated socket (`tmux -
 - [prompt-cursor.md](./prompt-cursor.md) — Cursor as director; workers: Claude Code CLI / Codex / Grok; per-task Composer 2.5 stewards drive `watch.sh` in short blocking chunks.
 - [prompt-claude-code.md](./prompt-claude-code.md) — Claude Code as director; workers: Codex / Grok; `watch.sh` runs as a background shell process that wakes the director on exit — no implementation subagents (cheap-model stewards proved unreliable at watch duty; since v3 a narrow read-only subagent policy covers pane judgment, log digestion, and scouting). A non-blocking discipline section reproduces Cursor's Multi-Task feel: foreground turns stay short, new requests are routed (via the ledger) before current work resumes, so the director is effectively always available.
 
+Chinese editions: [prompt-cursor.zh.md](./prompt-cursor.zh.md) / [prompt-claude-code.zh.md](./prompt-claude-code.zh.md) — protocol-identical translations: commands, embedded scripts, and protocol strings are verbatim the same; only the narrative language differs.
+
 v2 changes shared by both:
 
 - **Files are the data channel**: per-task `.tasks/` briefs, reports, `.done` sentinels, plus a `STATE.md` orchestration table so a fresh director session can resume the control plane after context loss. tmux scrollback is demoted to human viewing and forensics.
