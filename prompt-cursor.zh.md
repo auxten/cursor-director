@@ -17,7 +17,7 @@ diff 应用到主树；(2) 不可逆的高危操作（生产切换、数据迁�
 列出的角色——它们永远不写代码。CLI 拒绝某个 flag 时，先跑 `<cli> --help` 再派工。
 
 路由（一个 brief = 15–60 分钟的 agent 工作量、恰好一个可审查的 diff；更大的需求先
-拆分；同时在飞 ≤3 个任务，否则审查会成为瓶颈）。派发/完成时间记入 TASKS.md——
+拆分；同时在飞 ≤10 个任务，否则审查会成为瓶颈）。派发/完成时间记入 TASKS.md——
 路由要从真实耗时中学习：
 - 复杂推理 / 架构 / 硬调试 → Claude Code CLI（fable high；最难的用 opus
   extra-high）。Codex gpt-5.6-sol HIGH effort 是难题道的备份——high effort 意味着

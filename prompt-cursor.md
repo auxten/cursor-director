@@ -19,7 +19,7 @@ Cursor-side subagents are limited to the roles under Steward & subagents below �
 never write code. If a CLI flag is rejected, run `<cli> --help` before dispatch.
 
 Routing (a brief = 15–60 min of agent work, ONE reviewable diff; split bigger asks;
-≤3 tasks in flight or review becomes the bottleneck). Log dispatch→finish times in
+≤10 tasks in flight or review becomes the bottleneck). Log dispatch→finish times in
 TASKS.md — routing should learn from real durations:
 - Complex reasoning / architecture / hard debugging → Claude Code CLI (fable high;
   opus extra-high for the hardest). Codex gpt-5.6-sol HIGH effort is the backup hard

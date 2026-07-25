@@ -19,7 +19,7 @@ verify each step before the next. If a CLI flag is rejected, run `<cli> --help` 
 dispatch.
 
 Routing (a brief = 15–60 min of agent work, ONE reviewable diff; split bigger asks;
-≤3 tasks in flight or review becomes the bottleneck). Log dispatch→finish times in
+≤10 tasks in flight or review becomes the bottleneck). Log dispatch→finish times in
 TASKS.md — routing should learn from real durations:
 - Hard reasoning / architecture / gnarly debugging → Codex gpt-5.6-sol HIGH effort.
   High effort means multi-minute silent stretches and occasional capacity flakiness
