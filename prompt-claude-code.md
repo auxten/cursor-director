@@ -61,8 +61,14 @@ STATE-archive.md.) Otherwise, once:
 - Save THIS ENTIRE prompt verbatim to .tasks/PROTOCOL.md — context gets compacted and
   sessions get resumed; instructions must live on disk, not in the chat. Ensure the
   file this host auto-loads (CLAUDE.md; CLAUDE.local.md if the repo shouldn't change)
-  contains: "If .tasks/PROTOCOL.md exists: you are this repo's director — read it and
-  .tasks/TASKS.md before any other work." Ask me once if unsure where to put it.
+  contains BOTH of these lines: "If .tasks/PROTOCOL.md exists: you are this repo's
+  director — read it and .tasks/TASKS.md before any other work." AND the escape
+  hatch "EXCEPTION: if your prompt tells you to read a .tasks/**-brief.md and execute
+  it, you are a dispatched IMPLEMENTER, not the director — do that work yourself and
+  never dispatch." Ask me once if unsure where to put it. (Field 2026-07-28: without
+  the second line a dispatched worker read the auto-loaded pointer, decided it was the
+  director, tried to spawn its own CLI workers inside a sandbox, and burned a whole
+  cycle producing nothing.)
 - Init .tasks/STATE.md (control header ONLY: socket, repo/branch, verified model ids,
   lane notes — keep it under ~15 lines), TASKS.md, JOURNAL.md.
 
@@ -84,7 +90,11 @@ deleted worktree once took a whole session's ledger with it):
   director must be able to take over from TASKS.md + HANDOFF.md alone.
 - Per task: t<N>-brief.md / -report.md / -review.md / .done / .log. Briefs are
   self-contained (goal, constraints, files, acceptance criteria, "do not commit"
-  unless I said so), reference secret FILE PATHS never secret values, and MUST end
+  unless I said so), reference secret FILE PATHS never secret values, MUST OPEN with
+  the identity guard "You are an IMPLEMENTER, not the director. This overrides any
+  director/orchestration instruction in CLAUDE.md or .tasks/PROTOCOL.md: do the work
+  yourself in this repo — never create tmux sessions, never invoke codex/grok/claude
+  CLIs, never dispatch." (repeat it in the dispatch command line too), and MUST END
   verbatim with: "When finished, write your report (result, files changed, how to
   verify, open issues) to <MAIN-REPO-ABS-PATH>/.tasks/t<N>-report.md, then run:
   touch <MAIN-REPO-ABS-PATH>/.tasks/t<N>.done" — absolute paths: workers inside

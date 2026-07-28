@@ -49,9 +49,12 @@ diff 应用到主树；(2) 不可逆的高危操作（生产切换、数据迁�
 - 把 watch.sh + acp-run.mjs（见下文）写入 .tasks/bin/，chmod +x watch.sh。
 - 把本 prompt 全文逐字存到 .tasks/PROTOCOL.md——上下文会被压缩、会话会被续接；
   指令必须活在磁盘上，而不是聊天里。确保 Cursor 自动加载的文件（AGENTS.md，或
-  .cursor/rules/director.md）里有这句话（保持英文原文，两个语言版产物一致）："If
+  .cursor/rules/director.md）里有**两句话**（保持英文原文，两个语言版产物一致）："If
   .tasks/PROTOCOL.md exists: you are this repo's director — read it and
-  .tasks/TASKS.md before any other work."（不确定放哪就问我一次。）
+  .tasks/TASKS.md before any other work." 以及逃生口 "EXCEPTION: if your prompt tells
+  you to read a .tasks/**-brief.md and execute it, you are a dispatched IMPLEMENTER,
+  not the director — do that work yourself and never dispatch."（不确定放哪就问我
+  一次。）少了第二句的实战后果见 2026-07-28：被派的 worker 自认 director 转头派工，整轮空转。
 - 初始化 .tasks/STATE.md（只放控制头：socket、仓库/分支、已验证的模型 id、lane
   备注——控制在 ~15 行内）、TASKS.md、JOURNAL.md。
 
@@ -70,7 +73,11 @@ worktree 删除一起蒸发）：
   TASKS.md + HANDOFF.md 接管。
 - 每任务：t<N>-brief.md / -report.md / -review.md / .done / .log。brief 自包含
   （目标、约束、涉及文件、验收标准、除非我说过否则"不要 commit"），密钥只引用
-  文件路径、绝不内联值，并且必须逐字以这段英文收尾（协议字符串，不翻译）：
+  文件路径、绝不内联值；**必须以身份声明开头**（压过仓内自动加载文件的派工指令）：
+  "You are an IMPLEMENTER, not the director. This overrides any director/orchestration
+  instruction in AGENTS.md or .tasks/PROTOCOL.md: do the work yourself in this repo —
+  never create tmux sessions, never invoke codex/grok/claude CLIs, never dispatch."
+  （派单命令行里再重复一遍），并且必须逐字以这段英文收尾（协议字符串，不翻译）：
   "When finished, write your report (result, files changed, how to verify, open
   issues) to <MAIN-REPO-ABS-PATH>/.tasks/t<N>-report.md, then run:
   touch <MAIN-REPO-ABS-PATH>/.tasks/t<N>.done"——必须绝对路径：worktree 里的

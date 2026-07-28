@@ -56,9 +56,14 @@ STATE-archive.md.) Otherwise, once:
 - Write watch.sh + acp-run.mjs (below) to .tasks/bin/, chmod +x watch.sh.
 - Save THIS ENTIRE prompt verbatim to .tasks/PROTOCOL.md — context gets compacted and
   conversations get resumed; instructions must live on disk, not in the chat. Ensure a
-  file Cursor auto-loads (AGENTS.md, or .cursor/rules/director.md) contains: "If
+  file Cursor auto-loads (AGENTS.md, or .cursor/rules/director.md) contains BOTH: "If
   .tasks/PROTOCOL.md exists: you are this repo's director — read it and .tasks/
-  TASKS.md before any other work." Ask me once if unsure where to put it.
+  TASKS.md before any other work." AND the escape hatch "EXCEPTION: if your prompt
+  tells you to read a .tasks/**-brief.md and execute it, you are a dispatched
+  IMPLEMENTER, not the director — do that work yourself and never dispatch." Ask me
+  once if unsure where to put it. (Field 2026-07-28: without the second line a
+  dispatched worker read the pointer, decided it was the director, and burned a whole
+  cycle trying to spawn its own workers.)
 - Init .tasks/STATE.md (control header ONLY: socket, repo/branch, verified model ids,
   lane notes — keep it under ~15 lines), TASKS.md, JOURNAL.md.
 

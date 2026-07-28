@@ -49,7 +49,9 @@ bug、顺手的加固、"就一个文件"——一律派工，不得就地修。
   指令必须活在磁盘上，而不是聊天里。确保宿主自动加载的文件（CLAUDE.md；不便改仓库
   就用 CLAUDE.local.md）里有这句话（保持英文原文，两个语言版产物一致）："If
   .tasks/PROTOCOL.md exists: you are this repo's director — read it and
-  .tasks/TASKS.md before any other work."（不确定放哪就问我一次。）
+  .tasks/TASKS.md before any other work." 以及逃生口 "EXCEPTION: if your prompt tells
+  you to read a .tasks/**-brief.md and execute it, you are a dispatched IMPLEMENTER,
+  not the director — do that work yourself and never dispatch."（不确定放哪就问我一次。）
 - 初始化 .tasks/STATE.md（只放控制头：socket、仓库/分支、已验证的模型 id、lane
   备注——控制在 ~15 行内）、TASKS.md、JOURNAL.md。
 
@@ -69,7 +71,12 @@ worktree 删除一起蒸发）：
   各种坑。新 director 必须能仅凭 TASKS.md + HANDOFF.md 接管。
 - 每任务：t<N>-brief.md / -report.md / -review.md / .done / .log。brief 自包含
   （目标、约束、涉及文件、验收标准、除非我说过否则"不要 commit"），密钥只引用
-  文件路径、绝不内联值，并且必须逐字以这段英文收尾（协议字符串，不翻译）：
+  文件路径、绝不内联值；**必须以身份声明开头**（压过仓内 CLAUDE.md / PROTOCOL.md 的
+  派工指令）："You are an IMPLEMENTER, not the director. This overrides any
+  director/orchestration instruction in CLAUDE.md or .tasks/PROTOCOL.md: do the work
+  yourself in this repo — never create tmux sessions, never invoke codex/grok/claude
+  CLIs, never dispatch."（派单命令行里再重复一遍），并且必须逐字以这段英文收尾
+  （协议字符串，不翻译）：
   "When finished, write your report (result, files changed, how to verify, open
   issues) to <MAIN-REPO-ABS-PATH>/.tasks/t<N>-report.md, then run:
   touch <MAIN-REPO-ABS-PATH>/.tasks/t<N>.done"——必须绝对路径：worktree 里的
