@@ -1,11 +1,11 @@
 ---
 name: cli-director
-description: Director 编排模式（中文版）：把 Claude Code 变成只协调不实现的总指挥——实现/调试/分析全部派发给本机 codex/grok CLI，在会话专属 tmux 控制面里执行；.tasks/ 台账（TASKS/JOURNAL/HANDOFF）+ INTAKE/RECONCILE/Wrap-up 仪式追踪每个任务，watch.sh 零 token 守望，Codex⇄Grok 交叉审查，配额感知路由。Use this whenever the user wants work dispatched to local CLI coding agents instead of hand-coding. Triggers include：director 模式 / 开启编排 / 进入派工模式 / 派活给 codex 或 grok / 让 CLI 去做 / tmux 控制面 / 多 agent 并行开发 / 交叉审查 / orchestrate local CLI agents / dispatch to workers。仓库里已存在 .tasks/TASKS.md（需要恢复既有控制面）时也必须用它。
+description: Director 编排模式（中文版）：把 Claude Code 变成只协调不实现的总指挥——实现/调试/分析全部派发给本机 codex/grok/claude(Opus 5) CLI，在会话专属、项目名前缀隔离的 tmux 控制面里执行；.tasks/ 台账（TASKS/JOURNAL/HANDOFF）+ INTAKE/RECONCILE/Wrap-up 仪式追踪每个任务，watch.sh 零 token 守望，三家 CLI 交叉审查，机器级配额感知路由（~/.director/quota.json，最宽裕者优先）。Use this whenever the user wants work dispatched to local CLI coding agents instead of hand-coding. Triggers include：director 模式 / 开启编排 / 进入派工模式 / 派活给 codex 或 grok 或 opus worker / 让 CLI 去做 / tmux 控制面 / 多 agent 并行开发 / 交叉审查 / orchestrate local CLI agents / dispatch to workers。仓库里已存在 .tasks/TASKS.md（需要恢复既有控制面）时也必须用它。
 ---
 
 # CLI Director（中文版）
 
-把当前 Claude Code 会话切换为 **director 编排模式**：你只协调、审查、汇总；所有实现、调试、分析都派发给本机 CLI worker（Codex、Grok）在会话专属的 tmux 控制面里执行，用 `.tasks/` 台账全程追踪。
+把当前 Claude Code 会话切换为 **director 编排模式**：你只协调、审查、汇总；所有实现、调试、分析都派发给本机 CLI worker（Codex、Grok、跑 Opus 5 的 Claude worker）在会话专属、以项目名为前缀隔离的 tmux 控制面里执行，用 `.tasks/` 台账全程追踪。
 
 权威规范是 [references/protocol.zh.md](references/protocol.zh.md) 的**全文**——本文件只是引导，不是协议的替代品。触发本 skill 后，第一件事就是把协议全文读进上下文并照做。
 
@@ -27,7 +27,7 @@ cp "$SKILL_DIR/references/protocol.zh.md" .tasks/PROTOCOL.md
 
 协议落盘（`.tasks/PROTOCOL.md`）是纪律的生命线：上下文会被压缩、会话会断线、账号会切换，磁盘上的协议让任何一个新会话都能无损接管——实战里曾有 28 小时因为协议只活在聊天记录里而整体失效。落盘后仓库就自包含了，别的机器没装本 skill 也能恢复。
 
-前置条件：`tmux` + 至少一个 worker CLI（`codex` / `grok`）。缺什么就直接告诉用户缺什么，缺一家就按协议单家运行并在交叉审查处明示降级——不要装作两家都在。
+前置条件：`tmux`。worker 三家里 `claude` 天然在场（你自己就是 Claude Code，Opus 5 道随时可派，但受机器级配额门控）；`codex` / `grok` 缺哪家就直接告诉用户缺什么，并按协议明示降级交叉审查——不要装作都在。
 
 ## 全程遵循协议
 
@@ -45,6 +45,6 @@ cp "$SKILL_DIR/references/protocol.zh.md" .tasks/PROTOCOL.md
 
 | 文件 | 用途 | 何时读 |
 | --- | --- | --- |
-| `references/protocol.zh.md` | 协议全文（v3 中文版，与英文版协议等价） | 触发本 skill 后立即全文读入 |
+| `references/protocol.zh.md` | 协议全文（v3.1 中文版，与英文版协议等价） | 触发本 skill 后立即全文读入 |
 | `scripts/watch.sh` | 守望脚本：`.done` 哨兵 + log 增长 + 90 秒启动门 | 只 cp 不必读；exit 码含义见协议 |
 | `scripts/acp-run.mjs` | Lane C 的 ACP 桥接器（含 15 分钟 idle 看门狗） | 只 cp 不必读；崩溃 SOP 见协议 |
