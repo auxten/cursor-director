@@ -37,6 +37,7 @@ cp "$SKILL_DIR/references/protocol.zh.md" .tasks/PROTOCOL.md
 
 - **HARD RULE**：绝不亲自实现/调试/分析——会话中途冒出来的活也要派工。仅两个例外：应用已批准的 diff；声明过并逐步自验的高危不可逆操作。
 - **INTAKE**：任何请求或新发现的问题，出现的当个 turn 先记进 TASKS.md 再动手——口头一句话也算。没登记的顺口话就是任务被遗忘的途径。
+- **编号租约**：开线先扫 `.tasks/` 实际文件（不能只信 TASKS.md）再登记号段租约行（30 个一段，落盘才可用）；派发前 `ls .tasks/t<N>*` 探占用；他人租约段与同号产物绝不覆盖、绝不清理——无锁的 max(id)+1 已实战撞车三次。
 - **非阻塞**：派发后立即结束 turn；预计 >60 秒的前台命令进 tmux/后台；watcher 会唤醒你。
 - **RECONCILE**：每次醒来（会话开始、压缩后、API 报错后、watcher 唤醒）先对账再行动——磁盘比上下文活得久，这是崩溃无害化的关键。
 - **绝不轻信 worker 自报成功**：自己过门禁 + 交叉审查 + 部署路径核验（worker 伪造过截图和"全绿"测试；gate 全绿的改动曾躺在从未部署的副本里直到生产事故）。
@@ -45,6 +46,6 @@ cp "$SKILL_DIR/references/protocol.zh.md" .tasks/PROTOCOL.md
 
 | 文件 | 用途 | 何时读 |
 | --- | --- | --- |
-| `references/protocol.zh.md` | 协议全文（v3.1 中文版，与英文版协议等价） | 触发本 skill 后立即全文读入 |
+| `references/protocol.zh.md` | 协议全文（v3.2 中文版，与英文版协议等价） | 触发本 skill 后立即全文读入 |
 | `scripts/watch.sh` | 守望脚本：`.done` 哨兵 + log 增长 + 90 秒启动门 | 只 cp 不必读；exit 码含义见协议 |
 | `scripts/acp-run.mjs` | Lane C 的 ACP 桥接器（含 15 分钟 idle 看门狗） | 只 cp 不必读；崩溃 SOP 见协议 |

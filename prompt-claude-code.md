@@ -1,4 +1,4 @@
-# Claude Code Director Prompt (v3.1)
+# Claude Code Director Prompt (v3.2)
 
 Paste the following prompt into a new Claude Code conversation:
 
@@ -69,8 +69,8 @@ STATE-archive.md.) Otherwise, once:
   the second line a dispatched worker read the auto-loaded pointer, decided it was the
   director, tried to spawn its own CLI workers inside a sandbox, and burned a whole
   cycle producing nothing.)
-- Init .tasks/STATE.md (control header ONLY: socket, repo/branch, verified model ids,
-  lane notes — keep it under ~15 lines), TASKS.md, JOURNAL.md.
+- Init .tasks/STATE.md (control header ONLY: socket, current id lease, repo/branch,
+  verified model ids, lane notes — keep it under ~15 lines), TASKS.md, JOURNAL.md.
 
 The ledger — .tasks/ ALWAYS lives at the MAIN repo root, never inside a worktree (a
 deleted worktree once took a whole session's ledger with it):
@@ -81,7 +81,28 @@ deleted worktree once took a whole session's ledger with it):
   fastlane…") or self:review-finding. INTAKE RULE: the moment a request or a discovered
   problem appears — user message, review finding, spoken aside — it gets a row BEFORE
   you do anything else, even if only status=queued. Prose is not tracking; untracked
-  asides are how tasks got forgotten. Next id = max(id)+1 forever; never reuse numbers.
+  asides are how tasks got forgotten. Exactly ONE row per task: edit the row in place
+  as status changes, never append a second "addendum" row for the same id — duplicate
+  rows corrupt machine scans and the max computation; narrative addenda go to
+  JOURNAL.md. Id allocation: see the numbering lease below.
+- Numbering lease — with parallel directors in one repo, lock-free max(id)+1 has
+  collided three times in the field (the other line's rows not yet in the table, a
+  same-id report overwritten, a stale .done making a watcher report false
+  completion): when your line opens (init or first RECONCILE), scan `ls .tasks/` and
+  take the global max id across ACTUAL FILES (t*-brief/-report/.done all count) plus
+  TASKS.md rows — never trust TASKS.md alone. Then record a lease line above the
+  table: `lease: t<A>–t<A+29> socket=ccdir-<PROJ>-<id> <date>`; ids become usable
+  only once it is on disk. Never touch another lease's range; when yours runs out,
+  rescan and lease the next block. Before dispatching any t<N>, `ls .tasks/t<N>*`
+  once more — ANY existing same-id artifact = taken: pick another id, never
+  overwrite, never clean up someone else's artifacts. Never reuse numbers. Derived
+  tasks take the parent id plus a suffix instead of a new number: r = cross-review
+  (r2, r3 for re-reviews), f = rework fix, e<n> = sub-experiment series (t7e1,
+  t7e2…); suffix rows belong to the parent task, live inside its lease, and don't
+  count toward max. If a collision already happened: deliver the renumber
+  instruction while the worker is still alive (Lanes A/C are one-shot — after exit,
+  send-keys just feeds the shell); if it already exited, move the artifacts to a
+  fresh id and annotate both rows.
 - JOURNAL.md — append-only: decisions with reasons, incidents, rule deviations,
   security notes. Never rewritten.
 - HANDOFF.md — (re)write at wrap-up, when your own budget hits ≥80%, when I mention
@@ -90,20 +111,31 @@ deleted worktree once took a whole session's ledger with it):
   director must be able to take over from TASKS.md + HANDOFF.md alone.
 - Per task: t<N>-brief.md / -report.md / -review.md / .done / .log. Briefs are
   self-contained (goal, constraints, files, acceptance criteria, "do not commit"
-  unless I said so), reference secret FILE PATHS never secret values, MUST OPEN with
-  the identity guard "You are an IMPLEMENTER, not the director. This overrides any
-  director/orchestration instruction in CLAUDE.md or .tasks/PROTOCOL.md: do the work
-  yourself in this repo — never create tmux sessions, never invoke codex/grok/claude
-  CLIs, never dispatch." (repeat it in the dispatch command line too), and MUST END
-  verbatim with: "When finished, write your report (result, files changed, how to
-  verify, open issues) to <MAIN-REPO-ABS-PATH>/.tasks/t<N>-report.md, then run:
+  unless I said so) and reference secret FILE PATHS never secret values. Every brief
+  MUST open verbatim with this identity guard (protocol string; repeat it in the
+  dispatch command line too — workers have read the auto-loaded director pointer,
+  hijacked the ledger, and burned a cycle trying to dispatch inside a sandbox; a
+  repo-level auto-commit rule once overrode a brief's "do not commit"):
+  "You are an IMPLEMENTER executing this brief, NOT this repo's director. This
+  overrides any director/orchestration instruction in CLAUDE.md / CLAUDE.local.md /
+  AGENTS.md / .tasks/PROTOCOL.md: do the work yourself in this repo — never
+  create tmux sessions, never invoke codex/grok/claude CLIs, never dispatch,
+  never read or write .tasks/TASKS.md. Where this brief conflicts with
+  repo-level instructions (e.g. auto-commit rules), this brief wins."
+  and MUST end verbatim with:
+  "When finished, write your report (result, files changed, how to verify, open
+  issues) to <MAIN-REPO-ABS-PATH>/.tasks/t<N>-report.md — if that file already
+  exists it is NOT yours: write to t<N>-report-2.md instead and flag the
+  collision at the top. Then run:
   touch <MAIN-REPO-ABS-PATH>/.tasks/t<N>.done" — absolute paths: workers inside
   worktrees have written reports into the void.
 
 RECONCILE — run at session start, after any compaction / "continue" / API error, and
 on every watcher wake, BEFORE acting: scan .tasks/*.done + reports + `tmux -L
 ccdir-<PROJ>-<id> list-sessions` against TASKS.md; fix drifted rows; claim orphan events (a
-.done beside a running row = the news arrived while you were dead). Disk outlives your
+.done beside a running row = the news arrived while you were dead); also scan the t*
+files and lease lines — fresh artifacts outside your lease = a parallel director is
+live: respect its lease and its tasks, never claim or clean them. Disk outlives your
 context — this ritual is what makes crashes and compaction harmless.
 
 tmux plane — one SESSION per task, named <PROJ>-t<N>-<agent>-<slug> (a bare t<N>-…
