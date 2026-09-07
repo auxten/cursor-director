@@ -139,9 +139,9 @@ EXIT=$?` 记录的是 tee 的退出码，曾给 broken build 盖过章）：
 Claude Code worker：同一包装，命令换成 `claude -p --dangerously-skip-permissions
 --model opus "Read .tasks/t3-brief.md and execute it."`（加 --verbose 可在 pane 里
 看到实时进度；Codex 的 effort=high 只用于难题道 brief）。OpenCode-Spark worker：
-同一包装，命令换成 `opencode run -m spark/glm-5.3-flash "Read .tasks/t3-brief.md
+同一包装，命令换成 `opencode run --auto -m spark/glm-5.3-flash "Read .tasks/t3-brief.md
 and execute it."`——headless 模式自动执行 edit/bash 工具，无需 bypass flag
-（2026-08-31 实测）；模型名以 /v1/models 实际返回为准。Grok 默认走 Lane C
+（2026-08-31 实测）。**`--auto` 必带**：headless 下 edit/bash 默认放行，但 `external_directory`（写仓库外路径，如 /tmp 的 DerivedData/证据）会被 "auto-rejecting" 且 worker 静默退出不写报告（2026-09-07 t950 实锤）；`--auto` 放行所有未显式 deny 的权限，等价于 codex/claude 的 bypass flag（同日实测可写 /tmp）；模型名以 /v1/models 实际返回为准。Grok 默认走 Lane C
 （见下），不走 Lane A。
 
 Lane B——交互式 TUI（仅在预期需要中途转向、或 CLI 没有 headless 模式时用）。先把
@@ -297,7 +297,7 @@ session（含 headless）都持久化在 ~/.codex/sessions——可 `codex resum
 Grok 只能 attach
 旁观，除非 --help 出现 resume；Lane C 的 Grok session 不出现在 `grok sessions
 list`（已验证）——那里的接管 = attach、Ctrl-C 桥接器、重派。OpenCode worker 的
-session 持久化在本机：同目录下 `opencode run --continue`（或 `-s <id>`，`--fork`
+session 持久化在本机：同目录下 `opencode run -s <session id>`（**绝不用 `--continue`**：它是"本目录最后一个 session"，并行 worker 在场时会续错人——2026-09-07 t955 的返工被送进了 t954f 的 E2E 会话；id 从 `opencode session list` 取）或旧写法 `--continue`（或 `-s <id>`，`--fork`
 可分叉）续接——attach、Ctrl-C、--continue 即完整接管（flags 2026-08-31 实测在场）。
 
 同仓并行：≥2 个在飞任务写同一个仓库 → 各自隔离到 detached worktree
