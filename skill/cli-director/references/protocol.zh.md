@@ -139,9 +139,19 @@ EXIT=$?` 记录的是 tee 的退出码，曾给 broken build 盖过章）：
 Claude Code worker：同一包装，命令换成 `claude -p --dangerously-skip-permissions
 --model opus "Read .tasks/t3-brief.md and execute it."`（加 --verbose 可在 pane 里
 看到实时进度；Codex 的 effort=high 只用于难题道 brief）。OpenCode-Spark worker：
-同一包装，命令换成 `opencode run --auto -m spark/glm-5.3-flash "Read .tasks/t3-brief.md
-and execute it."`——headless 模式自动执行 edit/bash 工具，无需 bypass flag
-（2026-08-31 实测）。**`--auto` 必带**：headless 下 edit/bash 默认放行，但 `external_directory`（写仓库外路径，如 /tmp 的 DerivedData/证据）会被 "auto-rejecting" 且 worker 静默退出不写报告（2026-09-07 t950 实锤）；`--auto` 放行所有未显式 deny 的权限，等价于 codex/claude 的 bypass flag（同日实测可写 /tmp）；模型名以 /v1/models 实际返回为准。Grok 默认走 Lane C
+同一包装，命令换成 `~/.claude/skills/cli-director/scripts/spark-run --auto "Read
+.tasks/t3-brief.md and execute it."`——**不要自己写 `-m spark/<模型名>`**：Spark 这台
+vLLM 一次只服务一个模型、是人工 `llm start` 换的，写死在 `opencode.json` 里的名字
+迟早对不上（2026-09-08 实测：配置里钉着 deepseek-v4-flash / glm-5.3-flash，机器上
+其实是 qwen3.8-flash-next-fp8-t1840，两个都 404）。`spark-run` 每次先 GET
+`/v1/models` 取"此刻加载着的那个"，改写 opencode.json 的 spark provider，再
+`exec opencode run -m spark/<live>`；**它绝不触发换模型**（实测请求未加载的 id 只得
+404，服务端不会因此切换），Spark 连不上就 exit 69 且不改道。baseURL 也由它在
+`.local`(mDNS，只在家里网内可解析) 与 Tailscale `100.84.167.118` 之间自动回退——
+2026-09-07 把这条道判成"opencode 是 agent CLI 不是推理代理、零输出、不要用"是
+**误判**，真原因是模型名与地址都过期了；地址与模型对上之后它 19 秒正常出话。
+headless 模式自动执行 edit/bash 工具，无需 bypass flag
+（2026-08-31 实测）。**`--auto` 必带**：headless 下 edit/bash 默认放行，但 `external_directory`（写仓库外路径，如 /tmp 的 DerivedData/证据）会被 "auto-rejecting" 且 worker 静默退出不写报告（2026-09-07 t950 实锤）；`--auto` 放行所有未显式 deny 的权限，等价于 codex/claude 的 bypass flag（同日实测可写 /tmp）。**同项目并发陷阱**（2026-09-07 t979 两次 SIGTERM 实锤）：同一 git root 内并行的 `opencode run` 共享一个本地 server，先起者是 owner，owner 退出会连带杀掉后起的实例（EXIT=143）；同目录并发要么保证先起者最后退，要么把长任务放到独立 worktree（不同 git root），起第二个实例前先 `pgrep -f "opencode run"` 看清谁还在；模型名以 /v1/models 实际返回为准。Grok 默认走 Lane C
 （见下），不走 Lane A。
 
 Lane B——交互式 TUI（仅在预期需要中途转向、或 CLI 没有 headless 模式时用）。先把

@@ -1,0 +1,108 @@
+#!/bin/zsh
+# spark-run — 把一条 opencode 派工跑在 DGX Spark 上，模型永远取"机器上此刻加载着的那个"。
+#
+# 为什么需要它:
+#   `~/.config/opencode/opencode.json` 的 provider 块是**静态 JSON**，模型 id 只能写死。
+#   Spark 这台 vLLM 一次只服务一个模型，是人工用 `llm start` 换的；配置里钉的名字
+#   一旦和机器上实际加载的对不上，opencode 只会打印 "Cannot connect to API" 或干脆
+#   零输出。2026-09-07 那次据此把这条道判成"opencode 是 agent CLI 不是推理代理，
+#   不要用"——**那是误判**:2026-09-08 实测，地址与模型都对上之后它 19 秒就正常出话。
+#   当时的真原因是配置里钉着 deepseek-v4-flash / glm-5.3-flash，而机器上是
+#   qwen3.8-flash-next-fp8-t1840；并且 baseURL 写的是 `.local`(mDNS，只在家里网内
+#   可解析)，人在外网时必然连不上。
+#
+# 两条硬规矩:
+#   1. **绝不触发换模型**。只 GET /v1/models 然后照着用。实测请求一个没加载的 id
+#      只会拿到 404 `does not exist`，不会让服务端换模型——所以危险是"钉死旧名字"，
+#      不是"我们把它切走了"。本脚本不含任何 llm start/stop/switch 之类的调用。
+#   2. **Spark 连不上就明确失败(exit 69)**，不回退到别的 provider。派工路由是
+#      director 的决定，不该由一个 wrapper 偷偷改道到会烧配额的模型上。
+#
+# 与判定端(scripts/prod_inspect.py 的 resolve_spark_endpoint)是同一套地址候选与
+# 同一条"取 /v1/models 第一个"的规矩，但**故意不互相 import**:prod_inspect 必须
+# 保持单文件可 scp 到 mini，而这个脚本要能在任何仓库、任何 cwd 下跑。
+#
+# 用法: spark-run [opencode run 的任意参数] "prompt"
+#   例:  spark-run --auto "Read .tasks/t3-brief.md and execute it."
+# 环境: SPARK_BASE_URLS  逗号分隔，覆盖候选地址(设了就不再回退到默认候选)
+#       SPARK_RESOLVE_TIMEOUT  单个候选的解析超时秒数，默认 15
+set -u
+CONFIG="${OPENCODE_CONFIG_PATH:-$HOME/.config/opencode/opencode.json}"
+
+ENDPOINT=$(SPARK_CONFIG="$CONFIG" python3 - <<'PY'
+import json, os, sys, tempfile, urllib.error, urllib.request
+
+DEFAULT_CANDIDATES = (
+    # mDNS:只在家里网内可解析,但在网内是最短路径。
+    "http://gx10-333e.local:8000/v1",
+    # Tailscale:两种网络下都通,离网时靠它。
+    "http://100.84.167.118:8000/v1",
+)
+timeout = float(os.environ.get("SPARK_RESOLVE_TIMEOUT", "15"))
+raw = os.environ.get("SPARK_BASE_URLS", "").strip()
+candidates = [u.strip() for u in raw.split(",") if u.strip()] or list(DEFAULT_CANDIDATES)
+
+def live_model(base_url):
+    request = urllib.request.Request(
+        f"{base_url.rstrip('/')}/models",
+        headers={"Accept": "application/json", "User-Agent": "spark-run/1.0"},
+    )
+    with urllib.request.urlopen(request, timeout=timeout) as response:
+        payload = json.loads(response.read().decode("utf-8"))
+    ids = [m["id"].strip() for m in (payload.get("data") or [])
+           if isinstance(m, dict) and isinstance(m.get("id"), str) and m["id"].strip()]
+    if not ids:
+        raise RuntimeError("no usable model id in /models")
+    if len(set(ids)) > 1:
+        # 多模型不是错误,取服务端列出的第一个,只是说一声。
+        print(f"spark-run: Spark serves {sorted(set(ids))}; using {ids[0]}", file=sys.stderr)
+    return ids[0]
+
+errors = []
+for base_url in candidates:
+    try:
+        model_id = live_model(base_url)
+    except Exception as exc:
+        errors.append(f"{base_url}: {type(exc).__name__}: {exc}")
+        continue
+
+    config_path = os.environ["SPARK_CONFIG"]
+    try:
+        with open(config_path, encoding="utf-8") as fh:
+            config = json.load(fh)
+    except FileNotFoundError:
+        config = {"$schema": "https://opencode.ai/config.json"}
+    # 只动 spark 这一块,其它 provider 与顶层键原样保留。
+    provider = config.setdefault("provider", {}).setdefault("spark", {})
+    provider.setdefault("npm", "@ai-sdk/openai-compatible")
+    provider["name"] = "DGX Spark cluster (2x GB10)"
+    provider["options"] = {**provider.get("options", {}), "baseURL": base_url}
+    # 只声明 live 的那一个:多留一个旧 id 就是多一次"选到不存在的模型"的机会。
+    provider["models"] = {model_id: {"name": f"Spark live ({model_id})"}}
+    directory = os.path.dirname(os.path.abspath(config_path)) or "."
+    os.makedirs(directory, exist_ok=True)
+    # 原子替换,免得并发的 opencode 读到写了一半的配置。
+    with tempfile.NamedTemporaryFile("w", encoding="utf-8", dir=directory,
+                                     delete=False) as tmp:
+        json.dump(config, tmp, indent=2, ensure_ascii=False)
+        tmp.write("\n")
+        temp_path = tmp.name
+    os.replace(temp_path, config_path)
+    print(f"{base_url}\t{model_id}")
+    raise SystemExit(0)
+
+print("spark-run: no Spark endpoint answered /models — " + "; ".join(errors),
+      file=sys.stderr)
+raise SystemExit(69)  # EX_UNAVAILABLE
+PY
+)
+STATUS=$?
+if [[ $STATUS -ne 0 || -z "$ENDPOINT" ]]; then
+  print -u2 "spark-run: Spark 不可用，未派工（不回退到其它 provider）"
+  exit 69
+fi
+BASE_URL="${ENDPOINT%%$'\t'*}"
+MODEL_ID="${ENDPOINT##*$'\t'}"
+
+print -u2 "spark-run: $BASE_URL model=$MODEL_ID"
+exec opencode run -m "spark/$MODEL_ID" "$@"
