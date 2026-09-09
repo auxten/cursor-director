@@ -1,6 +1,6 @@
 ---
 name: cli-director
-description: Director 编排模式（中文版）：把 Claude Code 变成只协调不实现的总指挥——实现/调试/分析全部派发给本机 codex/grok/claude(Opus 5)/opencode(本地 2×DGX Spark 集群，默认跑 GLM-5.3-Flash + DFlash2，零配额) CLI，在会话专属、项目名前缀隔离的 tmux 控制面里执行；.tasks/ 台账（TASKS/JOURNAL/HANDOFF）+ INTAKE/RECONCILE/Wrap-up 仪式追踪每个任务，watch.sh 零 token 守望，四家 CLI 交叉审查，机器级配额感知路由（~/.director/quota.json，最宽裕者优先，本地 Spark 道为配额兜底）。Use this whenever the user wants work dispatched to local CLI coding agents instead of hand-coding. Triggers include：director 模式 / 开启编排 / 进入派工模式 / 派活给 codex 或 grok 或 opus 或 opencode worker / 用本地模型干活 / spark worker / 让 CLI 去做 / tmux 控制面 / 多 agent 并行开发 / 交叉审查 / orchestrate local CLI agents / dispatch to workers。仓库里已存在 .tasks/TASKS.md（需要恢复既有控制面）时也必须用它。
+description: Director 编排模式（中文版）：把 Claude Code 变成只协调不实现的总指挥——实现/调试/分析全部派发给本机 codex/grok/claude(Opus 5)/opencode(本地 2×DGX Spark 集群，使用集群当前正在 serving 的模型，零配额) CLI，在会话专属、项目名前缀隔离的 tmux 控制面里执行；.tasks/ 台账（TASKS/JOURNAL/HANDOFF）+ INTAKE/RECONCILE/Wrap-up 仪式追踪每个任务，watch.sh 零 token 守望，四家 CLI 交叉审查，机器级配额感知路由（~/.director/quota.json，最宽裕者优先，本地 Spark 道为配额兜底）。Use this whenever the user wants work dispatched to local CLI coding agents instead of hand-coding. Triggers include：director 模式 / 开启编排 / 进入派工模式 / 派活给 codex 或 grok 或 opus 或 opencode worker / 用本地模型干活 / spark worker / 让 CLI 去做 / tmux 控制面 / 多 agent 并行开发 / 交叉审查 / orchestrate local CLI agents / dispatch to workers。仓库里已存在 .tasks/TASKS.md（需要恢复既有控制面）时也必须用它。
 ---
 
 # CLI Director（中文版）
@@ -27,7 +27,16 @@ cp "$SKILL_DIR/references/protocol.zh.md" .tasks/PROTOCOL.md
 
 协议落盘（`.tasks/PROTOCOL.md`）是纪律的生命线：上下文会被压缩、会话会断线、账号会切换，磁盘上的协议让任何一个新会话都能无损接管——实战里曾有 28 小时因为协议只活在聊天记录里而整体失效。落盘后仓库就自包含了，别的机器没装本 skill 也能恢复。
 
-前置条件：`tmux`。worker 四家里 `claude` 天然在场（你自己就是 Claude Code，Opus 5 道随时可派，但受机器级配额门控）；`codex` / `grok` / `opencode` 缺哪家就直接告诉用户缺什么，并按协议明示降级交叉审查——不要装作都在。OpenCode-Spark 道额外要求本地集群在线：`curl -m3 http://gx10-333e.local:8000/v1/models` 通即可用（不通就把该道标为 down，别的照常）。
+前置条件：`tmux`。worker 四家里 `claude` 天然在场（你自己就是 Claude Code，Opus 5 道随时可派，但受机器级配额门控）；`codex` / `grok` / `opencode` 缺哪家就直接告诉用户缺什么，并按协议明示降级交叉审查——不要装作都在。OpenCode-Spark 道额外要求本地集群在线：`curl -m3 http://100.84.167.118:8000/v1/models` 通即可用（不通就把该道标为 down，别的照常）。
+
+## DGX Spark 模型使用规则
+
+**只用集群当前正在 serving 的模型**：每次派工由 `scripts/spark-run` 读取
+`GET /v1/models` 返回的 live id；不写死模型名，不把开机默认档当成当前模型。
+**CLI Director 及其 worker 不主动切换模型**，不为任务适配、性能、配额或连接失败
+执行 `llm start/stop`、重启服务或修改自启动配置。当前服务不可用或不适合任务时，
+记录原因并等待或改派其它可用道；只有用户明确要求模型切换这一运维操作时，
+才按 `dgx-spark` skill 的运维流程处理。
 
 ## 全程遵循协议
 

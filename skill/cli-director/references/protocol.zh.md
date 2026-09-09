@@ -23,7 +23,7 @@ bug、顺手的加固、"就一个文件"——一律派工，不得就地修。
   Opus；走 Lane A）。Codex high effort 意味着数分钟级的静默期和偶发的容量抖动
   （启动门与宽松超时就是为它准备的）——不要默认用它。
 - 常规实现 → Codex gpt-5.6-sol MEDIUM effort、Grok（grok-build，走 Lane C）、
-  Opus 5 worker，或 OpenCode-Spark（本地 DeepSeek，见下条；不赶时间或云端都紧张
+  Opus 5 worker，或 OpenCode-Spark（集群当前正在 serving 的模型，见下条；不赶时间或云端都紧张
   时优先它——零配额）。选周剩余额度最宽裕的那家（见下文 Quota）；全部 UNKNOWN
   或基本持平 → 优先 Grok 换并行吞吐，Claude 与他家持平时让给他家（它的池子同时
   也是你自己的预算）。
@@ -34,16 +34,14 @@ bug、顺手的加固、"就一个文件"——一律派工，不得就地修。
   与这个 Codex 便宜档是两回事。）
 - 云端配额紧张 / 批量非紧急 / 代码不宜出内网的活 → **OpenCode-Spark worker**：
   `opencode` CLI 连本地 2×DGX Spark 集群（provider `spark`，零配额、不限量、代码
-  不出局域网）。默认模型 GLM-5.3-Flash（NVFP4 + DFlash2 投机解码，2026-09-06 起
-  开机自启）。速度画像（2026-09-06 实测）：解码 27-40 tok/s（代码/JSON 33-34、散文
-  27，随投机接受率浮动），13K 上下文 prefill ~2.4k tok/s（TTFT 5.4s）；备选
-  DeepSeek-V4-Flash 解码 42-51 tok/s、prefill ~1.1k tok/s。云端 prefill 快一个量级，
-  但 prefix cache 已开、多轮 agent 循环里只有冷启动首轮吃亏。真正的权衡是能力档位：
-  Flash 级（GLM 18B / DeepSeek 13B 激活）复杂任务可能多几轮返工——所以 brief 要更自包含、验收更明确，难题仍走云端旗舰。前置探测：
-  `curl -m3 http://gx10-333e.local:8000/v1/models` 返回的模型 id 就是当前唯一可用
-  道（集群一次只服务一个模型，默认 glm-5.3-flash，可切 deepseek-v4-flash；切模型
-  要 6-20 分钟冷启动（`llm start glm-dflash2|deepseek|glm` / `llm status`），
-  绝不为单个任务切换——集群管理归用户，命令在 gx10-333e 的 ~/llm/README.md）。
+  不出局域网）。**只用集群当前正在 serving 的模型**：每次派工通过 `spark-run`
+  读取 `GET /v1/models` 返回的 live id，不写死模型名，不按文档中的开机默认档选模型。
+  前置探测：`curl -m3 http://100.84.167.118:8000/v1/models`；地址按 Tailscale IP →
+  MagicDNS → `.local` 回退，细节与模型能力的历史评测见 `dgx-spark` skill。
+  **CLI Director 及其 worker 不主动切换模型**：不为任务适配、性能、配额或连接失败
+  执行 `llm start/stop`、重启服务或修改自启动配置。当前服务不可用就记 down；
+  当前模型不适合任务就等待或改派其它可用道，不通过换集群模型来满足派工需求。
+  只有用户明确要求模型切换这一运维操作时，才按 `dgx-spark` 的运维流程处理。
 - 一句话级琐事 → 前台直接做。
 模型 id 会腐烂（grok-4.5 已于 2026 年 7 月中旬下线）。遇到 "unknown model"：清掉该
 任务的哨兵文件，改用当前 id 重派，并把新 id 记进 STATE.md。
@@ -147,7 +145,7 @@ vLLM 一次只服务一个模型、是人工 `llm start` 换的，写死在 `ope
 `/v1/models` 取"此刻加载着的那个"，改写 opencode.json 的 spark provider，再
 `exec opencode run -m spark/<live>`；**它绝不触发换模型**（实测请求未加载的 id 只得
 404，服务端不会因此切换），Spark 连不上就 exit 69 且不改道。baseURL 也由它在
-`.local`(mDNS，只在家里网内可解析) 与 Tailscale `100.84.167.118` 之间自动回退——
+Tailscale IP `100.84.167.118` → MagicDNS → `.local`(mDNS，仅局域网) 顺序自动回退——
 2026-09-07 把这条道判成"opencode 是 agent CLI 不是推理代理、零输出、不要用"是
 **误判**，真原因是模型名与地址都过期了；地址与模型对上之后它 19 秒正常出话。
 headless 模式自动执行 edit/bash 工具，无需 bypass flag
@@ -337,8 +335,8 @@ session 持久化在本机：同目录下 `opencode run -s <session id>`（**绝
   "Weekly limit: N%" 是已用百分比（2026-07-18 钉死；此前曾被朝两个方向误读、两次
   搞坏路由——缓存里保留原始行，方便后人复核）。5 小时窗 UNKNOWN。
 - OpenCode-Spark：本地集群，无配额概念。探测 = `curl -m3
-  http://gx10-333e.local:8000/v1/models`，quota.json 里记 "up/down + 当前模型 id"
-  即可（30 分钟刷新规则同样适用）。不通时不要自己去修集群——报告我（管理命令在
+  http://100.84.167.118:8000/v1/models`，quota.json 里记 "up/down + 当前模型 id"
+  即可（30 分钟刷新规则只用于可用性记录；每次派工仍须重新解析 live id）。不通时不要自己去修集群——报告我（管理命令在
   gx10-333e 的 ~/llm/README.md）。路由语义：它永远"最宽裕"，解码速度约为云端单流的一半到相当，
   短板是冷上下文首轮 TTFT 和 Flash 级的能力档位——是云端配额耗尽时的替补、批量/
   隐私活与审查兜底的首选；架构/难题仍优先云端旗舰。云端各家 5 小时窗全部耗尽时，
