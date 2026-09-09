@@ -33,10 +33,12 @@ ENDPOINT=$(SPARK_CONFIG="$CONFIG" python3 - <<'PY'
 import json, os, sys, tempfile, urllib.error, urllib.request
 
 DEFAULT_CANDIDATES = (
-    # mDNS:只在家里网内可解析,但在网内是最短路径。
-    "http://gx10-333e.local:8000/v1",
-    # Tailscale:两种网络下都通,离网时靠它。
+    # Tailscale IP 优先(用户 2026-09-09 指定):不经任何 DNS,家里网内/外网都通。
     "http://100.84.167.118:8000/v1",
+    # MagicDNS:IP 万一变了还能兜住(mini 上实测可解析)。
+    "http://gx10-333e.tail2c546.ts.net:8000/v1",
+    # mDNS:只在家里网内可解析,Tailscale 整条挂掉时的最后一条退路。
+    "http://gx10-333e.local:8000/v1",
 )
 timeout = float(os.environ.get("SPARK_RESOLVE_TIMEOUT", "15"))
 raw = os.environ.get("SPARK_BASE_URLS", "").strip()
